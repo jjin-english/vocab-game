@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>🚴 Spirit of Sports — 영어 학습 게임</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Fredoka+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#FF6B35;--pl:#FFF0EA;--p2:#FF8C5A;
+  --b:#2563EB;--bl:#EFF6FF;--b2:#1D4ED8;
+  --g:#16A34A;--gl:#F0FDF4;
+  --y:#F59E0B;--yl:#FFFBEB;
+  --r:#DC2626;--rl:#FEF2F2;
+  --pur:#7C3AED;--purl:#F5F3FF;
+  --teal:#0D9488;--teall:#F0FDFA;
+  --dark:#0F172A;--dark2:#1E293B;--dark3:#334155;
+  --tx:#0F172A;--txm:#475569;--txf:#94A3B8;
+  --sur:#FFFFFF;--bg:#F1F5F9;--bg2:#E2E8F0;
+  --bdr:rgba(15,23,42,0.08);
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+  --shl:0 8px 32px rgba(37,99,235,.18);
+  --rad:14px;--rads:10px;--pill:999px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);font-family:'Noto Sans KR',sans-serif;color:var(--tx);min-height:100vh;-webkit-tap-highlight-color:transparent;}
+.hdr{background:var(--dark);padding:.75rem 1.2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:300;box-shadow:0 2px 16px rgba(0,0,0,.4);}
+.hlogo{font-family:'Fredoka One',cursive;font-size:16px;color:#fff;}
+.hlogo span{color:var(--y);}
+.hstats{display:flex;gap:7px;align-items:center;}
+.pill{border-radius:var(--pill);padding:3px 11px;font-size:11px;font-weight:700;border:1.5px solid;}
+.pill-xp{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.3);color:var(--y);}
+.pill-lv{background:rgba(255,107,53,.12);border-color:rgba(255,107,53,.3);color:var(--p);}
+.wrap{max-width:680px;margin:0 auto;padding:1rem 1rem 5rem;}
+.card{background:var(--sur);border-radius:var(--rad);border:1px solid var(--bdr);padding:1.3rem;margin-bottom:.8rem;box-shadow:var(--sh);animation:slideUp .25s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.prog-card{background:var(--sur);border-radius:var(--rad);border:1px solid var(--bdr);padding:.9rem 1.1rem;margin-bottom:.8rem;box-shadow:var(--sh);}
+.prog-row{display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:12px;}
+.prog-label{font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.05em;}
+.prog-sent{font-family:'Fredoka One',cursive;color:var(--b);}
+.ptrack{background:var(--bg2);border-radius:8px;height:8px;overflow:hidden;}
+.pfill{height:8px;background:linear-gradient(90deg,var(--b),var(--p));border-radius:8px;transition:width .7s cubic-bezier(.4,0,.2,1);}
+.dots{display:flex;gap:3px;flex-wrap:wrap;margin-top:.5rem;}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--bg2);transition:all .3s;}
+.dot.done{background:#86EFAC;}.dot.active{background:var(--p);box-shadow:0 0 0 3px rgba(255,107,53,.25);}
+
+/* stage nav - skip */
+.stage-nav{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:.9rem;}
+.snav{font-size:11px;font-weight:700;padding:6px 12px;border-radius:var(--pill);border:1.5px solid var(--bdr);color:var(--txm);background:var(--sur);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px;}
+.snav:hover{border-color:var(--b);color:var(--b);}
+.snav.on{background:var(--dark);border-color:var(--dark);color:#fff;}
+.snav.dn{background:var(--gl);border-color:#86EFAC;color:var(--g);}
+.snav.skip-btn{background:var(--bg);border-color:var(--bg2);color:var(--txf);font-size:10px;}
+.snav.skip-btn:hover{background:var(--yl);border-color:var(--y);color:#92400E;}
+
+.stage-hd{display:flex;align-items:center;gap:8px;margin-bottom:.9rem;}
+.stage-icon{width:30px;height:30px;border-radius:var(--rads);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.si-learn{background:var(--bl);}
+.si-battle{background:var(--yl);}
+.si-read{background:var(--pl);}
+.si-break{background:var(--purl);}
+.si-order{background:var(--teall);}
+.stage-title{font-family:'Fredoka One',cursive;font-size:16px;}
+.stage-sub{font-size:11px;color:var(--txm);}
+
+/* TTS */
+.tts{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--bdr);background:var(--sur);cursor:pointer;font-size:13px;transition:all .18s;flex-shrink:0;vertical-align:middle;}
+.tts:hover{background:var(--bl);border-color:var(--b);}
+.tts.speaking{background:var(--bl);border-color:var(--b);animation:pulse .8s infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
+.tts-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+
+/* flash cards */
+.fc-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:9px;margin-bottom:1rem;}
+.fc{border:2px solid var(--bdr);border-radius:var(--rad);cursor:pointer;background:var(--sur);transition:border-color .2s,box-shadow .2s;overflow:hidden;position:relative;}
+.fc:hover{border-color:var(--b);box-shadow:var(--shl);}
+.fc.flipped{border-color:var(--g);}
+.fc.focw{border-color:var(--r);}
+.fc-inner{transition:transform .45s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d;min-height:120px;}
+.fc.flipped .fc-inner,.fc.focw.flipped .fc-inner{transform:rotateY(180deg);}
+.fc-front,.fc-back{position:absolute;inset:0;padding:.9rem;backface-visibility:hidden;display:flex;flex-direction:column;justify-content:center;}
+.fc-back{transform:rotateY(180deg);background:var(--gl);}
+.fc.focw .fc-back{background:var(--rl);}
+.fc-badge{position:absolute;top:7px;right:7px;font-size:9px;font-weight:700;padding:2px 6px;border-radius:var(--pill);background:var(--bl);color:var(--b);}
+.fc.focw .fc-badge{background:var(--rl);color:var(--r);}
+.fc-en{font-family:'Fredoka One',cursive;font-size:15px;color:var(--tx);line-height:1.3;margin-bottom:3px;}
+.fc-ko{font-size:13px;font-weight:700;color:var(--g);line-height:1.4;}
+.fc.focw .fc-ko{color:var(--r);}
+.fc-hint-txt{font-size:11px;color:var(--txf);margin-top:3px;}
+.fc-sent{font-size:11px;color:var(--txm);margin-top:5px;line-height:1.5;border-top:1px solid var(--bg2);padding-top:5px;}
+.fc-em{background:rgba(22,163,74,.15);border-radius:3px;padding:0 2px;font-weight:700;color:var(--g);}
+.fc.focw .fc-em{background:rgba(220,38,38,.15);color:var(--r);}
+.foc-banner{background:var(--rl);border:1.5px solid #FCA5A5;border-radius:var(--rads);padding:.6rem 1rem;font-size:12px;color:var(--r);font-weight:700;margin-bottom:.8rem;}
+
+/* battle */
+.battle-stats{display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:var(--rads);padding:.6rem 1rem;margin-bottom:.8rem;}
+.bs-combo{font-family:'Fredoka One',cursive;font-size:22px;color:var(--p);}
+.bs-streak{display:flex;gap:3px;}
+.bsdot{width:10px;height:10px;border-radius:50%;background:var(--bg2);}
+.bsdot.lit{background:var(--y);}
+.bs-score{font-family:'Fredoka One',cursive;font-size:20px;color:var(--b);text-align:right;}
+.bs-lbl{font-size:10px;color:var(--txf);font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
+.dir-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 12px;border-radius:var(--pill);margin-bottom:.7rem;letter-spacing:.04em;}
+.db-en{background:var(--bl);color:var(--b);}
+.db-ko{background:var(--yl);color:#92400E;}
+.wctr{font-size:11px;color:var(--txf);margin-bottom:.3rem;}
+.qprompt{font-family:'Fredoka One',cursive;font-size:20px;background:var(--bg);padding:13px 16px;border-radius:var(--rads);margin-bottom:.9rem;border-left:4px solid var(--b);line-height:1.5;}
+.chip-pool{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:.7rem;}
+.chip{display:inline-flex;align-items:center;padding:8px 16px;border-radius:var(--pill);font-size:13px;font-weight:700;cursor:pointer;user-select:none;transition:all .18s;border:2px solid;font-family:'Noto Sans KR',sans-serif;}
+.chip-idle{background:var(--sur);border-color:var(--bdr);color:var(--tx);}
+.chip-idle:hover{background:var(--bl);border-color:var(--b);color:var(--b);transform:translateY(-2px);}
+.chip-ok{background:var(--gl);border-color:#86EFAC;color:var(--g);cursor:default;}
+.chip-ng{background:var(--rl);border-color:#FCA5A5;color:var(--r);cursor:default;text-decoration:line-through;}
+.chip-hint{background:var(--yl);border-color:#FDE68A;color:#92400E;}
+.chip-placed{background:var(--bl);border-color:#BFDBFE;color:var(--b);}
+.chip-placed:hover{background:#DBEAFE;}
+.hint-btn{font-size:12px;color:var(--b);background:var(--bl);border:none;border-radius:var(--pill);padding:5px 13px;cursor:pointer;font-weight:700;font-family:'Noto Sans KR',sans-serif;}
+
+/* chunk read */
+.chunk-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:.9rem;}
+.ck{border:2px solid var(--bdr);border-radius:var(--pill);padding:8px 14px;cursor:pointer;background:var(--sur);transition:all .2s;user-select:none;}
+.ck:hover{border-color:var(--p);transform:translateY(-2px);}
+.ck.shown{border-color:var(--p);background:var(--pl);}
+.ck-en{font-family:'Fredoka One',cursive;font-size:14px;color:var(--tx);line-height:1.4;}
+.ck-ko{font-size:12px;color:var(--p);margin-top:3px;font-weight:700;display:none;}
+.ck.shown .ck-ko{display:block;}
+.full-reveal{background:var(--dark);border-radius:var(--rads);padding:1rem 1.2rem;margin-bottom:.8rem;animation:slideUp .3s ease;}
+.full-reveal .ren{font-family:'Fredoka One',cursive;font-size:13px;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:.3rem;}
+.full-reveal .rko{font-size:14px;color:var(--y);font-weight:700;line-height:1.7;}
+.full-reveal .cheer{font-size:12px;color:rgba(255,255,255,.6);margin-top:.4rem;}
+
+/* arrange */
+.sb-prompt{font-family:'Fredoka One',cursive;font-size:16px;background:var(--bg);padding:12px 15px;border-radius:var(--rads);border-left:4px solid var(--p);line-height:1.6;margin-bottom:.9rem;}
+.sb-prompt-ko{font-size:14px;background:var(--bg);padding:12px 15px;border-radius:var(--rads);border-left:4px solid var(--teal);line-height:1.7;margin-bottom:.9rem;font-weight:700;color:var(--dark);}
+.ans-zone{min-height:50px;display:flex;flex-wrap:wrap;gap:6px;padding:9px 11px;background:var(--bg);border-radius:var(--rads);border:2px dashed var(--bdr);margin-bottom:.8rem;align-content:flex-start;transition:border-color .25s,background .25s;}
+.ans-zone.ok{border-color:#86EFAC;background:var(--gl);}
+.ans-zone.ng{border-color:#FCA5A5;background:var(--rl);}
+.ans-empty{font-size:11px;color:var(--txf);align-self:center;}
+.dir-toggle{display:flex;gap:6px;margin-bottom:.8rem;}
+.dtog{flex:1;padding:7px;border-radius:var(--rads);border:2px solid var(--bdr);font-size:12px;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;font-family:'Noto Sans KR',sans-serif;background:var(--sur);color:var(--txm);}
+.dtog.active{border-color:var(--b);background:var(--bl);color:var(--b);}
+
+/* sentence order */
+.order-sent{border:2px solid var(--bdr);border-radius:var(--rads);padding:9px 13px;cursor:pointer;background:var(--sur);transition:all .2s;margin-bottom:5px;display:flex;align-items:flex-start;gap:9px;user-select:none;}
+.order-sent:hover{border-color:var(--teal);background:var(--teall);}
+.order-sent.placed{background:var(--bl);border-color:#BFDBFE;}
+.order-sent.correct-pos{background:var(--gl);border-color:#86EFAC;}
+.order-sent.wrong-pos{background:var(--rl);border-color:#FCA5A5;}
+.order-num{font-family:'Fredoka One',cursive;font-size:17px;color:var(--txf);min-width:26px;padding-top:1px;}
+.order-txt{font-family:'Fredoka One',cursive;font-size:13px;color:var(--tx);line-height:1.5;flex:1;}
+.order-ans-zone{min-height:48px;border:2px dashed var(--bdr);border-radius:var(--rads);padding:7px 9px;background:var(--bg);margin-bottom:.8rem;}
+.order-ans-zone.ok{border-color:#86EFAC;background:var(--gl);}
+.order-ans-zone.ng{border-color:#FCA5A5;background:var(--rl);}
+.order-instructions{font-size:12px;color:var(--txm);margin-bottom:.7rem;background:var(--teall);padding:.6rem .9rem;border-radius:var(--rads);border-left:3px solid var(--teal);}
+
+/* fb */
+.fb{font-size:13px;padding:9px 13px;border-radius:var(--rads);margin-top:.6rem;font-weight:700;display:flex;align-items:flex-start;gap:5px;line-height:1.5;}
+.fb.ok{background:var(--gl);color:var(--g);}
+.fb.ng{background:var(--rl);color:var(--r);}
+
+/* nav */
+.nav{display:flex;gap:7px;margin-top:.9rem;flex-wrap:wrap;align-items:center;}
+.btn{padding:9px 20px;border-radius:var(--pill);border:2px solid var(--bdr);background:var(--sur);font-size:13px;font-weight:700;color:var(--tx);cursor:pointer;transition:all .18s;font-family:'Noto Sans KR',sans-serif;}
+.btn:hover{border-color:var(--b);color:var(--b);}
+.btn.pri{background:var(--b);border-color:var(--b);color:#fff;}
+.btn.pri:hover{background:var(--b2);transform:translateY(-1px);box-shadow:var(--shl);}
+.btn.grn{background:var(--g);border-color:var(--g);color:#fff;}
+.btn.grn:hover{background:#15803D;transform:translateY(-1px);}
+.btn.ghost{color:var(--txm);}
+.btn.skip{background:var(--yl);border-color:var(--y);color:#92400E;}
+.btn.skip:hover{background:#FDE68A;}
+
+/* menu screen */
+.menu-hero{background:linear-gradient(135deg,var(--dark2),var(--dark3));border-radius:20px;padding:1.5rem;margin-bottom:.8rem;}
+.menu-title{font-family:'Fredoka One',cursive;font-size:15px;color:rgba(255,255,255,.7);margin-bottom:.8rem;}
+.menu-sent-row{display:flex;align-items:flex-start;gap:10px;padding:.7rem .9rem;border-radius:var(--rads);background:rgba(255,255,255,.07);margin-bottom:.4rem;cursor:pointer;border:1.5px solid transparent;transition:all .2s;}
+.menu-sent-row:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);}
+.menu-sent-row.active{background:rgba(255,107,53,.2);border-color:rgba(255,107,53,.4);}
+.menu-sent-num{font-family:'Fredoka One',cursive;font-size:14px;color:var(--y);min-width:24px;}
+.menu-sent-en{font-size:13px;color:#fff;line-height:1.5;flex:1;}
+.menu-sent-ko{font-size:11px;color:rgba(255,255,255,.5);margin-top:1px;}
+.menu-stage-btns{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:1rem;}
+.msb{padding:.8rem;border-radius:var(--rads);border:2px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);cursor:pointer;text-align:center;transition:all .2s;color:#fff;font-family:'Noto Sans KR',sans-serif;}
+.msb:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);}
+.msb.selected{background:rgba(37,99,235,.4);border-color:rgba(37,99,235,.7);}
+.msb-icon{font-size:20px;margin-bottom:3px;}
+.msb-label{font-size:12px;font-weight:700;}
+.msb-sub{font-size:10px;opacity:.7;margin-top:1px;}
+
+/* xp popup */
+#xp-pop{position:fixed;top:66px;right:14px;font-family:'Fredoka One',cursive;font-size:17px;color:var(--y);background:var(--dark);padding:7px 16px;border-radius:var(--pill);z-index:999;pointer-events:none;display:none;}
+#xp-pop.show{display:block;animation:xpUp .85s ease forwards;}
+@keyframes xpUp{0%{opacity:0;transform:translateY(0) scale(.8);}25%{opacity:1;transform:translateY(-16px) scale(1.1);}65%{opacity:1;transform:translateY(-26px);}100%{opacity:0;transform:translateY(-46px);}}
+
+/* level up */
+#lv-ov{position:fixed;inset:0;background:rgba(15,23,42,.88);z-index:500;display:none;align-items:center;justify-content:center;}
+#lv-ov.show{display:flex;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+.lv-box{background:var(--dark2);border:2px solid var(--y);border-radius:22px;padding:2rem 1.8rem;text-align:center;max-width:280px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{transform:scale(.6);}to{transform:scale(1);}}
+.lv-emoji{font-size:52px;margin-bottom:.6rem;}
+.lv-title{font-family:'Fredoka One',cursive;font-size:26px;color:var(--y);margin-bottom:.3rem;}
+.lv-name{font-size:14px;color:#fff;margin-bottom:1rem;opacity:.9;}
+
+/* name screen */
+.ns-hero{background:linear-gradient(135deg,var(--dark2),var(--dark3));border-radius:20px;padding:2rem 1.8rem;margin-bottom:.9rem;text-align:center;}
+.ns-emoji{font-size:52px;margin-bottom:.7rem;}
+.ns-title{font-family:'Fredoka One',cursive;font-size:25px;color:#fff;margin-bottom:.3rem;}
+.ns-title span{color:var(--y);}
+.ns-desc{font-size:13px;color:rgba(255,255,255,.65);line-height:1.8;margin-bottom:1.3rem;}
+.ns-input{width:100%;max-width:240px;padding:12px 16px;border:2px solid rgba(255,255,255,.15);border-radius:var(--pill);font-size:15px;font-weight:700;font-family:'Noto Sans KR',sans-serif;background:rgba(255,255,255,.1);color:#fff;text-align:center;outline:none;transition:border-color .2s;}
+.ns-input::placeholder{color:rgba(255,255,255,.35);}
+.ns-input:focus{border-color:var(--y);}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.9rem;}
+.feat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--rads);padding:.6rem;text-align:left;}
+.feat-ico{font-size:16px;margin-bottom:2px;}
+.feat-txt{font-size:11px;color:rgba(255,255,255,.7);line-height:1.4;}
+
+/* focus review */
+.fr-box{background:var(--rl);border:2px solid #FCA5A5;border-radius:var(--rad);padding:1.1rem;margin-bottom:.8rem;}
+.fr-title{font-family:'Fredoka One',cursive;font-size:19px;color:var(--r);margin-bottom:.3rem;}
+.fr-sub{font-size:12px;color:var(--r);opacity:.8;margin-bottom:.9rem;}
+.fr-item{background:#fff;border:1.5px solid #FCA5A5;border-radius:var(--rads);padding:.7rem .9rem;margin-bottom:.4rem;display:flex;justify-content:space-between;align-items:center;gap:.8rem;}
+.fr-en{font-family:'Fredoka One',cursive;font-size:14px;color:var(--tx);}
+.fr-ko{font-weight:700;color:var(--r);font-size:13px;}
+.fr-err{font-size:10px;color:var(--txf);margin-top:1px;}
+
+/* result */
+.res-hero{background:linear-gradient(135deg,var(--dark2),var(--dark3));border-radius:20px;padding:1.8rem;text-align:center;margin-bottom:.9rem;}
+.res-ico{font-size:52px;margin-bottom:.6rem;}
+.res-name{font-size:13px;color:rgba(255,255,255,.65);margin-bottom:.2rem;}
+.res-stars{font-size:24px;margin-bottom:.2rem;}
+.res-pct{font-family:'Fredoka One',cursive;font-size:50px;color:var(--y);line-height:1;}
+.res-sub{font-size:12px;color:rgba(255,255,255,.55);margin-top:.3rem;margin-bottom:.7rem;}
+.res-msg{font-size:13px;color:#fff;line-height:1.7;opacity:.9;}
+.rbd{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rad);padding:1.1rem;margin-bottom:.8rem;}
+.rbd-t{font-size:11px;font-weight:900;color:var(--txm);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.8rem;}
+.rbd-row{display:flex;align-items:center;font-size:13px;padding:6px 0;border-bottom:1px solid var(--bg);gap:9px;}
+.rbd-row:last-child{border-bottom:none;}
+.rbd-lbl{flex:0 0 88px;color:var(--txm);}
+.rbd-bar{flex:1;height:6px;background:var(--bg2);border-radius:6px;overflow:hidden;}
+.rbd-fill{height:6px;background:linear-gradient(90deg,var(--g),var(--b));border-radius:6px;}
+.rbd-val{flex:0 0 46px;text-align:right;font-weight:900;color:var(--b);}
+.rbd-dt{font-size:11px;color:var(--txf);text-align:right;margin-top:.4rem;}
+
+@media(max-width:480px){.fc-wrap{grid-template-columns:1fr 1fr;}.qprompt{font-size:17px;}.chip{font-size:12px;padding:7px 13px;}.menu-stage-btns{grid-template-columns:1fr 1fr;}}
+@media print{.hdr,.nav,.stage-nav,.dots,#xp-pop,#lv-ov{display:none!important;}body{background:#fff;}.res-hero{background:#1E293B!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div><div class="hlogo">🚴 Spirit of <span>Sports</span></div></div>
+  <div class="hstats">
+    <span class="pill pill-xp" id="h-xp">XP 0</span>
+    <span class="pill pill-lv" id="h-lv">Lv.1 Rookie</span>
+  </div>
+</div>
+<div class="wrap"><div id="app"></div></div>
+<div id="xp-pop"></div>
+<div id="lv-ov"><div class="lv-box" id="lv-box"></div></div>
+
+<script>
+const LEVELS=[{n:1,name:'Rookie',icon:'🌱',min:0},{n:2,name:'Learner',icon:'🚲',min:60},{n:3,name:'Rider',icon:'💨',min:150},{n:4,name:'Sprinter',icon:'⚡',min:280},{n:5,name:'Champion',icon:'🏆',min:450}];
+const CHEERS=['완벽해요! 🎉','정말 잘했어요! 🚀','훌륭해요! ⭐','최고예요! 🔥','멋져요! 💪','대단해요! 🌟'];
+const STAGES=['learn','battle','cread','cquiz','order'];
+const STAGE_LABELS={learn:'📖 단어학습',battle:'⚔️ 단어배틀',cread:'🔍 청크읽기',cquiz:'🧩 문장배열',order:'📝 순서배열'};
+
+const DATA=[
+  {
+    en:'My name is Bliksem, which means "lightning."',
+    ko:'내 이름은 Bliksem인데, 이는 "번개"를 의미한다.',
+    words:[
+      {en:'lightning',ko:'번개',hint:'명사',sent:'which means "<em>lightning</em>".',sentKo:'이는 "<em>번개</em>"를 의미한다'},
+      {en:'means',ko:'의미하다',hint:'동사',sent:'which <em>means</em> "lightning".',sentKo:'이는 "<em>의미한다</em>"'}
+    ],
+    chunks:[{en:'My name is Bliksem',ko:'내 이름은 Bliksem이다'},{en:'which means "lightning"',ko:'이는 "번개"를 의미한다'}]
+  },
+  {
+    en:'My parents named me this because they wanted me to be faster than anyone else.',
+    ko:'부모님은 내가 누구보다 빠르길 원했기 때문에 이 이름을 지어주셨다.',
+    words:[
+      {en:'named',ko:'이름을 짓다',hint:'동사',sent:'My parents <em>named</em> me this.',sentKo:'부모님은 나에게 이 이름을 <em>지어주셨다</em>'},
+      {en:'faster than anyone else',ko:'누구보다 더 빠른',hint:'비교급',sent:'to be <em>faster than anyone else</em>.',sentKo:'<em>누구보다 더 빠르기를</em>'}
+    ],
+    chunks:[{en:'My parents named me this',ko:'부모님은 나에게 이 이름을 지어주셨다'},{en:'because they wanted me',ko:'왜냐하면 그들이 내가 ~하길 원했기 때문에'},{en:'to be faster than anyone else',ko:'누구보다 더 빠르기를'}]
+  },
+  {
+    en:'Born in the Netherlands, a country with more bicycles than people, I learned to ride a bike almost as soon as I could walk.',
+    ko:'자전거가 사람보다 많은 나라인 네덜란드에서 태어나, 나는 걸을 수 있게 되자마자 자전거 타는 법을 배웠다.',
+    words:[
+      {en:'the Netherlands',ko:'네덜란드',hint:'고유명사',sent:'Born in <em>the Netherlands</em>.',sentKo:'<em>네덜란드</em>에서 태어나'},
+      {en:'as soon as',ko:'~하자마자',hint:'접속사',sent:'almost <em>as soon as</em> I could walk.',sentKo:'걸을 수 있게 되<em>자마자</em>'},
+      {en:'ride a bike',ko:'자전거를 타다',hint:'동사구',sent:'I learned to <em>ride a bike</em>.',sentKo:'<em>자전거 타는 법</em>을 배웠다'}
+    ],
+    chunks:[{en:'Born in the Netherlands',ko:'네덜란드에서 태어나'},{en:'a country with more bicycles than people',ko:'자전거가 사람보다 많은 나라'},{en:'I learned to ride a bike',ko:'나는 자전거 타는 법을 배웠다'},{en:'almost as soon as I could walk',ko:'걸을 수 있게 되자마자'}]
+  },
+  {
+    en:'I loved feeling the breeze in my hair.',
+    ko:'나는 머릿결 사이로 스치는 바람을 느끼는 것이 좋았다.',
+    words:[
+      {en:'breeze',ko:'산들바람',hint:'명사',sent:'the <em>breeze</em> in my hair.',sentKo:'머릿결 사이로 <em>산들바람</em>을'},
+      {en:'loved feeling',ko:'느끼는 것을 좋아했다',hint:'동사구',sent:'I <em>loved feeling</em> the breeze.',sentKo:'나는 바람을 <em>느끼는 것을 좋아했다</em>'}
+    ],
+    chunks:[{en:'I loved feeling',ko:'나는 느끼는 것이 좋았다'},{en:'the breeze in my hair',ko:'머릿결 사이로 스치는 바람을'}]
+  },
+  {
+    en:'When I was eleven, a junior bicycle race was held in our small town.',
+    ko:'내가 열한 살이었을 때, 우리 작은 마을에서 주니어 자전거 경주가 열렸다.',
+    words:[
+      {en:'junior',ko:'주니어의, 청소년',hint:'형용사',sent:'a <em>junior</em> bicycle race.',sentKo:'<em>주니어</em> 자전거 경주'},
+      {en:'was held',ko:'개최되었다',hint:'수동태',sent:'a race <em>was held</em> in our town.',sentKo:'경주가 <em>개최되었다</em>'}
+    ],
+    chunks:[{en:'When I was eleven',ko:'내가 열한 살이었을 때'},{en:'a junior bicycle race',ko:'주니어 자전거 경주가'},{en:'was held in our small town',ko:'우리 작은 마을에서 열렸다'}]
+  },
+  {
+    en:'I entered the race as the youngest rider.',
+    ko:'나는 가장 어린 선수로 경주에 참가했다.',
+    words:[
+      {en:'entered',ko:'참가하다',hint:'동사',sent:'I <em>entered</em> the race.',sentKo:'나는 경주에 <em>참가했다</em>'},
+      {en:'the youngest rider',ko:'가장 어린 선수',hint:'명사구',sent:'as <em>the youngest rider</em>.',sentKo:'<em>가장 어린 선수</em>로서'}
+    ],
+    chunks:[{en:'I entered the race',ko:'나는 경주에 참가했다'},{en:'as the youngest rider',ko:'가장 어린 선수로서'}]
+  },
+  {
+    en:'Before the race started, I looked around the crowd, and I couldn\'t believe my eyes!',
+    ko:'경주가 시작되기 전에, 나는 군중을 둘러보았고, 내 눈을 믿을 수 없었다!',
+    words:[
+      {en:'crowd',ko:'군중, 사람들',hint:'명사',sent:'I looked around the <em>crowd</em>.',sentKo:'나는 <em>군중을</em> 둘러보았다'},
+      {en:"couldn't believe my eyes",ko:'눈을 믿을 수 없었다',hint:'관용표현',sent:'I <em>couldn\'t believe my eyes</em>!',sentKo:'나는 <em>눈을 믿을 수 없었다</em>!'}
+    ],
+    chunks:[{en:'Before the race started',ko:'경주가 시작되기 전에'},{en:'I looked around the crowd',ko:'나는 군중을 둘러보았다'},{en:"and I couldn't believe my eyes",ko:'그리고 나는 내 눈을 믿을 수 없었다!'}]
+  },
+  {
+    en:'My hero, Gabriel Martinez, the cycling world champion, was standing there!',
+    ko:'나의 영웅, 세계 사이클링 챔피언 Gabriel Martinez가 거기 서 있었다!',
+    words:[
+      {en:'champion',ko:'챔피언, 우승자',hint:'명사',sent:'the cycling world <em>champion</em>.',sentKo:'세계 사이클링 <em>챔피언</em>'},
+      {en:'was standing',ko:'서 있었다',hint:'과거진행',sent:'<em>was standing</em> there!',sentKo:'거기 <em>서 있었다</em>!'}
+    ],
+    chunks:[{en:'My hero, Gabriel Martinez',ko:'나의 영웅, Gabriel Martinez'},{en:'the cycling world champion',ko:'세계 사이클링 챔피언'},{en:'was standing there',ko:'거기 서 있었다'}]
+  },
+  {
+    en:'I ran over and asked, "You\'re Gabriel Martinez, right? Can I have your autograph?"',
+    ko:'나는 달려가서 물었다, "당신이 Gabriel Martinez 맞죠? 사인을 받을 수 있을까요?"',
+    words:[
+      {en:'ran over',ko:'달려갔다',hint:'동사구',sent:'I <em>ran over</em> and asked.',sentKo:'나는 <em>달려가서</em> 물었다'},
+      {en:'autograph',ko:'사인, 서명',hint:'명사',sent:'Can I have your <em>autograph</em>?',sentKo:'당신의 <em>사인을</em> 받을 수 있을까요?'}
+    ],
+    chunks:[{en:'I ran over and asked',ko:'나는 달려가서 물었다'},{en:'"You\'re Gabriel Martinez, right?"',ko:'"당신이 Gabriel Martinez 맞죠?"'},{en:'"Can I have your autograph?"',ko:'"사인을 받을 수 있을까요?"'}]
+  },
+  {
+    en:'He smiled and said, "If you win, you can."',
+    ko:'그는 미소를 지으며 말했다, "네가 이기면, 줄게."',
+    words:[
+      {en:'smiled',ko:'미소 짓다',hint:'동사',sent:'He <em>smiled</em> and said.',sentKo:'그는 <em>미소를 지으며</em> 말했다'},
+      {en:'If you win',ko:'네가 이기면',hint:'조건절',sent:'"<em>If you win</em>, you can."',sentKo:'"<em>네가 이기면</em>, 줄게."'}
+    ],
+    chunks:[{en:'He smiled and said',ko:'그는 미소를 지으며 말했다'},{en:'"If you win, you can."',ko:'"네가 이기면, 줄게."'}]
+  },
+  {
+    en:'Excited by what he said, I pedaled harder than ever.',
+    ko:'그가 한 말에 흥분하여, 나는 그 어느 때보다 힘껏 페달을 밟았다.',
+    words:[
+      {en:'excited',ko:'흥분한, 신난',hint:'형용사',sent:'<em>Excited</em> by what he said.',sentKo:'<em>흥분하여</em>'},
+      {en:'pedaled',ko:'페달을 밟다',hint:'동사',sent:'I <em>pedaled</em> harder than ever.',sentKo:'나는 <em>페달을 밟았다</em>'},
+      {en:'harder than ever',ko:'그 어느 때보다 힘껏',hint:'비교급',sent:'<em>harder than ever</em>.',sentKo:'<em>그 어느 때보다 힘껏</em>'}
+    ],
+    chunks:[{en:'Excited by what he said',ko:'그가 한 말에 흥분하여'},{en:'I pedaled harder than ever',ko:'나는 그 어느 때보다 힘껏 페달을 밟았다'}]
+  },
+  {
+    en:'I came in first and Gabriel was waiting at the finish line.',
+    ko:'나는 1등으로 들어왔고 Gabriel은 결승선에서 기다리고 있었다.',
+    words:[
+      {en:'came in first',ko:'1등으로 들어오다',hint:'동사구',sent:'I <em>came in first</em>.',sentKo:'나는 <em>1등으로 들어왔다</em>'},
+      {en:'finish line',ko:'결승선',hint:'명사',sent:'at the <em>finish line</em>.',sentKo:'<em>결승선</em>에서'}
+    ],
+    chunks:[{en:'I came in first',ko:'나는 1등으로 들어왔다'},{en:'and Gabriel was waiting',ko:'그리고 Gabriel은 기다리고 있었다'},{en:'at the finish line',ko:'결승선에서'}]
+  },
+  {
+    en:'As promised, he handed me his autograph saying, "You outran the others by two laps! You\'re a real racer, kid!"',
+    ko:'약속대로, 그는 나에게 사인을 건네며 말했다, "너는 다른 선수들보다 두 바퀴나 앞질렀어! 너는 진짜 레이서야, 꼬마야!"',
+    words:[
+      {en:'as promised',ko:'약속대로',hint:'부사구',sent:'<em>As promised</em>, he handed me his autograph.',sentKo:'<em>약속대로</em>, 그는 사인을 건넸다'},
+      {en:'handed',ko:'건네다',hint:'동사',sent:'he <em>handed</em> me his autograph.',sentKo:'그는 나에게 사인을 <em>건넸다</em>'},
+      {en:'outran',ko:'앞질렀다',hint:'동사',sent:'You <em>outran</em> the others.',sentKo:'너는 다른 선수들을 <em>앞질렀어</em>'}
+    ],
+    chunks:[{en:'As promised, he handed me his autograph',ko:'약속대로 그는 나에게 사인을 건넸다'},{en:'saying, "You outran the others by two laps!"',ko:'"너는 두 바퀴나 앞질렀어!"라고 말하며'},{en:'"You\'re a real racer, kid!"',ko:'"너는 진짜 레이서야, 꼬마야!"'}]
+  },
+  {
+    en:'Since then, Gabriel has been my mentor.',
+    ko:'그때부터 Gabriel은 나의 멘토가 되었다.',
+    words:[
+      {en:'since then',ko:'그때부터',hint:'부사구',sent:'<em>Since then</em>, Gabriel has been my mentor.',sentKo:'<em>그때부터</em> 멘토가 되었다'},
+      {en:'mentor',ko:'멘토, 조언자',hint:'명사',sent:'Gabriel has been my <em>mentor</em>.',sentKo:'나의 <em>멘토</em>가 되었다'}
+    ],
+    chunks:[{en:'Since then',ko:'그때부터'},{en:'Gabriel has been my mentor',ko:'Gabriel은 나의 멘토가 되었다'}]
+  },
+  {
+    en:'When I turned nineteen, he brought me into his professional team, where only the most skilled and passionate cyclists came together.',
+    ko:'내가 열아홉 살이 되었을 때, 그는 나를 그의 프로팀에 데려갔는데, 그곳에는 가장 뛰어나고 열정적인 사이클리스트들만 모였다.',
+    words:[
+      {en:'professional team',ko:'프로팀',hint:'명사구',sent:'brought me into his <em>professional team</em>.',sentKo:'그의 <em>프로팀</em>에 데려갔다'},
+      {en:'skilled',ko:'뛰어난, 숙련된',hint:'형용사',sent:'the most <em>skilled</em> and passionate cyclists.',sentKo:'가장 <em>뛰어난</em> 사이클리스트들'},
+      {en:'passionate',ko:'열정적인',hint:'형용사',sent:'skilled and <em>passionate</em> cyclists.',sentKo:'<em>열정적인</em> 사이클리스트들'}
+    ],
+    chunks:[{en:'When I turned nineteen',ko:'내가 열아홉 살이 되었을 때'},{en:'he brought me into his professional team',ko:'그는 나를 그의 프로팀에 데려갔다'},{en:'where only the most skilled and passionate cyclists came together',ko:'그곳에는 가장 뛰어나고 열정적인 사이클리스트들만 모였다'}]
+  },
+  {
+    en:'I felt small and insignificant.',
+    ko:'나는 작고 보잘것없이 느껴졌다.',
+    words:[
+      {en:'insignificant',ko:'보잘것없는, 하찮은',hint:'형용사',sent:'small and <em>insignificant</em>.',sentKo:'<em>보잘것없이</em> 느껴졌다'},
+      {en:'felt',ko:'느끼다',hint:'동사',sent:'I <em>felt</em> small.',sentKo:'나는 <em>느껴졌다</em>'}
+    ],
+    chunks:[{en:'I felt small',ko:'나는 작게 느껴졌다'},{en:'and insignificant',ko:'그리고 보잘것없이'}]
+  },
+  {
+    en:'I could sprint the fastest on flat courses, but I always fell behind in mountain races.',
+    ko:'나는 평지 코스에서 가장 빠르게 질주할 수 있었지만, 산악 경주에서는 항상 뒤처졌다.',
+    words:[
+      {en:'sprint',ko:'전속력으로 달리다',hint:'동사',sent:'I could <em>sprint</em> the fastest.',sentKo:'나는 <em>전속력으로 달릴</em> 수 있었다'},
+      {en:'flat courses',ko:'평지 코스',hint:'명사구',sent:'on <em>flat courses</em>.',sentKo:'<em>평지 코스</em>에서'},
+      {en:'fell behind',ko:'뒤처지다',hint:'동사구',sent:'I always <em>fell behind</em>.',sentKo:'나는 항상 <em>뒤처졌다</em>'}
+    ],
+    chunks:[{en:'I could sprint the fastest',ko:'나는 가장 빠르게 질주할 수 있었다'},{en:'on flat courses',ko:'평지 코스에서'},{en:'but I always fell behind',ko:'하지만 나는 항상 뒤처졌다'},{en:'in mountain races',ko:'산악 경주에서'}]
+  },
+  {
+    en:'The Netherlands is mostly flat, so I had rarely cycled up steep slopes before.',
+    ko:'네덜란드는 대부분 평평하기 때문에, 나는 그전에 가파른 경사면을 자전거로 오른 적이 거의 없었다.',
+    words:[
+      {en:'mostly',ko:'대부분, 주로',hint:'부사',sent:'The Netherlands is <em>mostly</em> flat.',sentKo:'네덜란드는 <em>대부분</em> 평평하다'},
+      {en:'rarely',ko:'거의 ~않다',hint:'부사',sent:'I had <em>rarely</em> cycled.',sentKo:'나는 <em>거의</em> 오른 적이 없었다'},
+      {en:'steep slopes',ko:'가파른 경사면',hint:'명사구',sent:'up <em>steep slopes</em>.',sentKo:'<em>가파른 경사면</em>을'}
+    ],
+    chunks:[{en:'The Netherlands is mostly flat',ko:'네덜란드는 대부분 평평하다'},{en:'so I had rarely cycled',ko:'그래서 자전거를 탄 적이 거의 없었다'},{en:'up steep slopes before',ko:'그전에 가파른 경사면을'}]
+  },
+  {
+    en:'Gabriel was from Bogotá, Colombia, which is high up in the Andes.',
+    ko:'Gabriel은 안데스 산맥 높은 곳에 위치한 콜롬비아의 보고타 출신이었다.',
+    words:[
+      {en:'Bogotá',ko:'보고타 (콜롬비아 수도)',hint:'고유명사',sent:'Gabriel was from <em>Bogotá</em>, Colombia.',sentKo:'Gabriel은 <em>보고타</em> 출신이었다'},
+      {en:'the Andes',ko:'안데스 산맥',hint:'고유명사',sent:'high up in <em>the Andes</em>.',sentKo:'<em>안데스 산맥</em> 높은 곳에'}
+    ],
+    chunks:[{en:'Gabriel was from Bogotá, Colombia',ko:'Gabriel은 콜롬비아의 보고타 출신이었다'},{en:'which is high up in the Andes',ko:'그곳은 안데스 산맥 높은 곳에 위치한다'}]
+  },
+  {
+    en:'He had a lot of experience in riding on hills and mountains, so he was always the first to arrive at the top.',
+    ko:'그는 언덕과 산에서 자전거를 타는 경험이 많았기 때문에, 항상 정상에 가장 먼저 도착했다.',
+    words:[
+      {en:'experience',ko:'경험',hint:'명사',sent:'a lot of <em>experience</em> in riding.',sentKo:'자전거 타는 <em>경험</em>이 많았다'},
+      {en:'arrive at the top',ko:'정상에 도착하다',hint:'동사구',sent:'the first to <em>arrive at the top</em>.',sentKo:'정상에 <em>도착하는</em> 첫 번째'}
+    ],
+    chunks:[{en:'He had a lot of experience',ko:'그는 경험이 많았다'},{en:'in riding on hills and mountains',ko:'언덕과 산에서 자전거 타는'},{en:'so he was always the first to arrive at the top',ko:'그래서 그는 항상 정상에 가장 먼저 도착했다'}]
+  },
+  {
+    en:'He would say, "Riding uphill is painful, but the view at the top is fantastic. Never stop pedaling, kid."',
+    ko:'그는 이렇게 말하곤 했다, "오르막을 타는 것은 고통스럽지만, 정상에서의 경치는 환상적이야. 절대 페달 밟는 것을 멈추지 마, 꼬마야."',
+    words:[
+      {en:'uphill',ko:'오르막, 언덕 위로',hint:'명사/부사',sent:'Riding <em>uphill</em> is painful.',sentKo:'<em>오르막</em>을 타는 것은'},
+      {en:'painful',ko:'고통스러운',hint:'형용사',sent:'Riding uphill is <em>painful</em>.',sentKo:'<em>고통스럽다</em>'},
+      {en:'fantastic',ko:'환상적인',hint:'형용사',sent:'the view is <em>fantastic</em>.',sentKo:'경치는 <em>환상적이야</em>'}
+    ],
+    chunks:[{en:'Riding uphill is painful',ko:'오르막을 타는 것은 고통스럽다'},{en:'but the view at the top is fantastic',ko:'하지만 정상에서의 경치는 환상적이야'},{en:'Never stop pedaling, kid.',ko:'절대 페달 밟는 것을 멈추지 마, 꼬마야.'}]
+  }
+];
+
+function shuf(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function sa(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"&#39;").replace(/"/g,'&quot;');}
+function raw(s){return String(s);}
+function toPieces(s){return s.split(/\s+/).filter(Boolean);}
+function getLv(xp){let l=LEVELS[0];for(const x of LEVELS)if(xp>=x.min)l=x;return l;}
+
+let synth=window.speechSynthesis;
+let spkBtn=null;
+function speak(txt,btn){
+  synth.cancel();
+  if(spkBtn){spkBtn.classList.remove('speaking');spkBtn=null;}
+  const u=new SpeechSynthesisUtterance(txt);
+  u.lang='en-US';u.rate=0.85;u.pitch=1;
+  if(btn){btn.classList.add('speaking');spkBtn=btn;}
+  u.onend=u.onerror=()=>{if(spkBtn){spkBtn.classList.remove('speaking');spkBtn=null;}};
+  synth.speak(u);
+}
+function ttsBtn(txt,id){return `<button class="tts" id="${id}" onclick="event.stopPropagation();speak('${sa(txt)}',document.getElementById('${id}'))">🔊</button>`;}
+
+let pName='학생';
+let G;
+function initG(){
+  G={
+    si:0,stage:'learn',
+    wRev:[],wErr:{},
+    wqi:0,wqOpts:[],wqAns:null,wqHinted:false,wqRetry:false,wqRetryAns:null,
+    combo:0,streak:0,score:0,total:0,
+    cRev:[],
+    cqi:0,cDir:'en2ko',pieces:[],placed:[],arrDone:false,arrOk:false,
+    orderPhase:false,orderItems:[],orderPlaced:[],orderDone:false,orderOk:false,
+    xp:0,done:false,focReview:false,
+    bd:{wE:0,wET:0,wK:0,wKT:0,cEK:0,cEKT:0,cKE:0,cKET:0,ord:0,ordT:0}
+  };
+}
+function resetSentenceState(){
+  G.wRev=[];G.wqi=0;G.wqOpts=[];G.wqAns=null;G.wqHinted=false;G.wqRetry=false;G.wqRetryAns=null;
+  G.cRev=[];G.cqi=0;G.cDir='en2ko';G.pieces=[];G.placed=[];G.arrDone=false;G.arrOk=false;
+}
+
+function addXP(n){
+  const ol=getLv(G.xp);G.xp+=n;
+  document.getElementById('h-xp').textContent='XP '+G.xp;
+  const nl=getLv(G.xp);
+  document.getElementById('h-lv').textContent='Lv.'+nl.n+' '+nl.name;
+  showXPPop('+'+n+' XP');
+  if(nl.n>ol.n)showLvUp(nl);
+}
+function showXPPop(t){const el=document.getElementById('xp-pop');el.textContent=t;el.classList.remove('show');void el.offsetWidth;el.classList.add('show');}
+function showLvUp(lv){
+  document.getElementById('lv-box').innerHTML=`<div class="lv-emoji">${lv.icon}</div><div class="lv-title">LEVEL UP!</div><div class="lv-name">Lv.${lv.n} — ${lv.name}</div><button class="btn pri" onclick="document.getElementById('lv-ov').classList.remove('show')">계속! 🚀</button>`;
+  document.getElementById('lv-ov').classList.add('show');
+}
+
+function makeWOpts(dir){
+  const w=DATA[G.si].words[G.wqi];
+  const correct=dir==='en2ko'?w.ko:w.en;
+  const pool=DATA.flatMap(d=>d.words).filter(x=>(dir==='en2ko'?x.ko:x.en)!==correct);
+  return shuf([correct,...shuf(pool).slice(0,3).map(x=>dir==='en2ko'?x.ko:x.en)]);
+}
+function initArr(dir){
+  const c=DATA[G.si].chunks[G.cqi];
+  const src=dir==='en2ko'?c.ko:c.en;
+  G.pieces=shuf(toPieces(src).map((t,i)=>({t,i})));
+  G.placed=[];G.arrDone=false;G.arrOk=false;
+}
+function initOrder(){G.orderItems=shuf(DATA.map((_,i)=>i));G.orderPlaced=[];G.orderDone=false;G.orderOk=false;}
+function focWords(){return Object.entries(G.wErr).filter(([,v])=>v>=3).map(([k])=>k);}
+
+/* ── RENDER ── */
+function render(){
+  const app=document.getElementById('app');
+  if(G.orderPhase){app.innerHTML=rOrder();return;}
+  if(G.focReview){app.innerHTML=rFocReview();return;}
+  if(G.done){app.innerHTML=rResult();return;}
+  const s=DATA[G.si];
+  const pct=Math.round(G.si/DATA.length*100);
+  const stageOrd={learn:0,battle_en:1,battle_ko:1,cread:2,cquiz:3};
+  const cur=stageOrd[G.stage]||0;
+  let h='';
+  h+=`<div class="prog-card">
+    <div class="prog-row"><span class="prog-label">진행도</span><span class="prog-sent">문장 ${G.si+1} / ${DATA.length}</span></div>
+    <div class="ptrack"><div class="pfill" style="width:${pct}%"></div></div>
+    <div class="dots">${DATA.map((_,i)=>`<span class="dot ${i<G.si?'done':i===G.si?'active':''}"></span>`).join('')}</div>
+  </div>`;
+  /* stage nav with skip */
+  const stDefs=[{key:'learn',label:'📖 단어학습',o:0},{key:'battle',label:'⚔️ 단어배틀',o:1},{key:'cread',label:'🔍 청크읽기',o:2},{key:'cquiz',label:'🧩 문장배열',o:3}];
+  h+=`<div class="stage-nav">`;
+  stDefs.forEach(st=>{
+    const isCur=st.o===cur;
+    const isDone=st.o<cur;
+    h+=`<span class="snav ${isCur?'on':isDone?'dn':''}" onclick="jumpStage('${st.key}')" title="${isCur?'현재 단계':isDone?'완료':'클릭해서 바로 이동'}">${st.label}${isCur?'':' ↗'}</span>`;
+  });
+  h+=`<span class="snav skip-btn" onclick="skipSentence()" title="이 문장 건너뛰기">⏭ 문장 건너뛰기</span>`;
+  h+=`</div>`;
+  h+=`<div class="card">`;
+  if(G.stage==='learn')h+=rLearn(s);
+  else if(G.stage==='battle_en'||G.stage==='battle_ko')h+=rBattle(s);
+  else if(G.stage==='cread')h+=rCRead(s);
+  else h+=rCQuiz(s);
+  h+=`</div>`;
+  app.innerHTML=h;
+}
+
+function showMenu(){
+  const app=document.getElementById('app');
+  let h=`<div class="card"><div class="stage-hd"><div class="stage-icon si-order">📋</div><div><div class="stage-title">문장 선택</div><div class="stage-sub">원하는 문장과 단계를 골라 시작하세요</div></div></div>`;
+  h+=`<div style="font-size:12px;color:var(--txm);margin-bottom:.7rem;">어떤 단계부터 시작할까요?</div>`;
+  h+=`<div class="menu-stage-btns" id="stage-sel">
+    <div class="msb selected" id="msb-learn" onclick="selStage('learn')"><div class="msb-icon">📖</div><div class="msb-label">단어 학습</div><div class="msb-sub">카드 뒤집기</div></div>
+    <div class="msb" id="msb-battle" onclick="selStage('battle_en')"><div class="msb-icon">⚔️</div><div class="msb-label">단어 배틀</div><div class="msb-sub">영↔한 퀴즈</div></div>
+    <div class="msb" id="msb-cread" onclick="selStage('cread')"><div class="msb-icon">🔍</div><div class="msb-label">청크 읽기</div><div class="msb-sub">해석 확인</div></div>
+    <div class="msb" id="msb-cquiz" onclick="selStage('cquiz')"><div class="msb-icon">🧩</div><div class="msb-label">문장 배열</div><div class="msb-sub">조각 맞추기</div></div>
+  </div>`;
+  h+=`<div style="font-size:12px;color:var(--txm);margin:.8rem 0 .5rem;">시작할 문장을 선택하세요</div>`;
+  DATA.forEach((s,i)=>{
+    h+=`<div class="menu-sent-row" id="msr-${i}" onclick="selSent(${i})">
+      <span class="menu-sent-num">${i+1}</span>
+      <div>
+        <div class="tts-row">${ttsBtn(s.en,'menu-tts-'+i)}<span class="menu-sent-en">${esc(s.en)}</span></div>
+        <div class="menu-sent-ko">${esc(s.ko)}</div>
+      </div>
+    </div>`;
+  });
+  h+=`<div class="nav" style="margin-top:1rem"><button class="btn pri" onclick="startFromMenu()">🚀 선택한 곳부터 시작!</button><button class="btn ghost" onclick="render()">← 돌아가기</button></div></div>`;
+  app.innerHTML=h;
+  window._menuSi=0;window._menuStage='learn';
+}
+
+let _menuSi=0,_menuStage='learn';
+function selSent(i){
+  _menuSi=i;
+  document.querySelectorAll('.menu-sent-row').forEach((el,idx)=>{el.classList.toggle('active',idx===i);});
+}
+function selStage(st){
+  _menuStage=st;
+  ['learn','battle_en','cread','cquiz'].forEach(s=>{
+    const key=s==='battle_en'?'battle':s;
+    const el=document.getElementById('msb-'+key);
+    if(el)el.classList.toggle('selected',s===st);
+  });
+}
+function startFromMenu(){
+  G.si=_menuSi||0;
+  const st=_menuStage||'learn';
+  resetSentenceState();
+  G.stage=st;
+  if(st==='cquiz'){G.pieces=[];G.placed=[];G.arrDone=false;}
+  render();
+}
+
+/* ── LEARN ── */
+function rLearn(s){
+  const fw=focWords();
+  const allFlipped=s.words.every((_,i)=>G.wRev.includes(i));
+  let h='';
+  h+=`<div class="stage-hd"><div class="stage-icon si-learn">📖</div><div><div class="stage-title">Word Master</div><div class="stage-sub">카드 클릭 → 뜻 확인 (${G.wRev.length}/${s.words.length})</div></div></div>`;
+  if(fw.length)h+=`<div class="foc-banner">🎯 집중 단어: ${fw.join(', ')}</div>`;
+  h+=`<div class="tts-row" style="margin-bottom:.8rem">${ttsBtn(s.en,'sent-tts-'+G.si)}<span style="font-size:12px;color:var(--txf);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(s.en)}</span></div>`;
+  h+=`<div class="fc-wrap">`;
+  s.words.forEach((w,i)=>{
+    const flipped=G.wRev.includes(i);
+    const errs=G.wErr[w.en]||0;
+    const isFoc=errs>=3;
+    const sHtml=raw(w.sent.replace(/<em>/g,'<span class="fc-em">').replace(/<\/em>/g,'</span>'));
+    h+=`<div style="perspective:800px"><div class="fc ${flipped?'flipped':''} ${isFoc?'focw':''}" onclick="flipCard(${i})" style="height:125px;">
+      <div class="fc-inner">
+        <div class="fc-front">
+          <span class="fc-badge">${esc(w.hint)}</span>
+          <div class="fc-en" style="margin-top:6px">${esc(w.en)}</div>
+          <div style="margin-top:5px">${ttsBtn(w.en,'wf-'+G.si+'-'+i)}</div>
+          <div class="fc-hint-txt">👆 클릭해서 뜻 확인</div>
+        </div>
+        <div class="fc-back">
+          <span class="fc-badge">${esc(w.hint)}</span>
+          <div class="fc-ko" style="margin-top:6px">${esc(w.ko)}</div>
+          <div class="fc-sent">${sHtml}</div>
+        </div>
+      </div>
+    </div></div>`;
+  });
+  h+=`</div>`;
+  if(allFlipped)h+=`<div class="fb ok">✓ 모든 단어 확인! 배틀 준비됐어요!</div>`;
+  h+=`<div class="nav">
+    <button class="btn pri" onclick="jumpStage('battle_en')">⚔️ 단어 배틀 →</button>
+    <button class="btn skip" onclick="jumpStage('cread')">⏭ 청크 읽기로 건너뛰기</button>
+  </div>`;
+  return h;
+}
+
+/* ── BATTLE ── */
+function rBattle(s){
+  const dir=G.stage==='battle_en'?'en2ko':'ko2en';
+  const dl=dir==='en2ko'?'영어 → 한국어':'한국어 → 영어';
+  const wTot=s.words.length*2;
+  const wDone=(G.stage==='battle_ko'?s.words.length:0)+G.wqi;
+  const w=s.words[G.wqi];
+  const prompt=dir==='en2ko'?w.en:w.ko;
+  const correct=dir==='en2ko'?w.ko:w.en;
+  if(!G.wqOpts.length)G.wqOpts=makeWOpts(dir);
+  const isRetry=G.wqRetry;
+  const curAns=isRetry?G.wqRetryAns:G.wqAns;
+  let h='';
+  h+=`<div class="stage-hd"><div class="stage-icon si-battle">⚔️</div><div><div class="stage-title">Word Battle</div><div class="stage-sub">단어 ${wDone+1} / ${wTot}</div></div></div>`;
+  h+=`<div class="battle-stats">
+    <div><div class="bs-lbl">COMBO</div><div class="bs-combo">${G.combo>1?'x'+G.combo:'—'}</div></div>
+    <div class="bs-streak">${Array.from({length:5},(_,i)=>`<span class="bsdot ${i<Math.min(G.streak%6,5)?'lit':''}"></span>`).join('')}</div>
+    <div><div class="bs-lbl" style="text-align:right">점수</div><div class="bs-score">${G.score}</div></div>
+  </div>`;
+  h+=`<span class="dir-badge ${dir==='en2ko'?'db-en':'db-ko'}">${dl}</span>`;
+  h+=`<div class="tts-row" style="margin-bottom:.5rem">${dir==='en2ko'?ttsBtn(w.en,'bq-'+G.si+'-'+G.wqi):''}</div>`;
+  h+=`<div class="qprompt">${esc(prompt)}</div>`;
+  h+=`<div class="chip-pool">`;
+  G.wqOpts.forEach(opt=>{
+    let cls='chip chip-idle';
+    if(G.wqHinted&&opt===correct&&curAns===null)cls='chip chip-hint';
+    if(curAns!==null){if(opt===correct)cls='chip chip-ok';else if(opt===curAns)cls='chip chip-ng';}
+    h+=`<button class="${cls}" ${curAns!==null?'disabled':''} onclick="ansW('${sa(opt)}','${sa(correct)}')">${esc(opt)}</button>`;
+  });
+  h+=`</div>`;
+  if(curAns===null&&!G.wqHinted)h+=`<button class="hint-btn" onclick="showHint()">💡 힌트 (첫 글자: ${esc(correct[0])})</button>`;
+  if(curAns!==null){
+    const ok=curAns===correct;
+    if(ok){
+      h+=`<div class="fb ok">✓ 정답! ${G.combo>1?'콤보 x'+G.combo+'! ':''} 🎉</div>`;
+      h+=`<div class="nav"><button class="btn grn" onclick="nextW()">다음 →</button></div>`;
+    }else if(!isRetry){
+      h+=`<div class="fb ng">✗ 오답! 재도전 기회 1회!</div>`;
+      h+=`<div class="nav"><button class="btn pri" onclick="retryW()">🔄 재도전!</button></div>`;
+    }else{
+      h+=`<div class="fb ng">✗ 오답. 정답: <strong>${esc(correct)}</strong></div>`;
+      h+=`<div class="nav"><button class="btn ghost" onclick="nextW()">다음 →</button></div>`;
+    }
+  }else{
+    h+=`<div class="nav" style="margin-top:.5rem"><button class="btn skip" onclick="jumpStage('cread')">⏭ 청크 읽기로 건너뛰기</button></div>`;
+  }
+  return h;
+}
+
+/* ── CHUNK READ ── */
+function rCRead(s){
+  const allRev=s.chunks.every((_,i)=>G.cRev.includes(i));
+  let h='';
+  h+=`<div class="stage-hd"><div class="stage-icon si-read">🔍</div><div><div class="stage-title">Sentence Breaker — 읽기</div><div class="stage-sub">청크 클릭 → 해석 확인 (${G.cRev.length}/${s.chunks.length})</div></div></div>`;
+  h+=`<div class="tts-row" style="margin-bottom:.8rem">${ttsBtn(s.en,'cr-full-'+G.si)}<span style="font-size:12px;color:var(--txf);">전체 문장 듣기</span></div>`;
+  h+=`<div class="chunk-row">`;
+  s.chunks.forEach((c,i)=>{
+    const r=G.cRev.includes(i);
+    h+=`<div class="ck ${r?'shown':''}" onclick="flipChunk(${i})">
+      <div class="tts-row">${ttsBtn(c.en,'ck-'+G.si+'-'+i)}<span class="ck-en">${esc(c.en)}</span></div>
+      <div class="ck-ko">${esc(c.ko)}</div>
+    </div>`;
+  });
+  h+=`</div>`;
+  if(allRev){
+    const cheer=CHEERS[Math.floor(Math.random()*CHEERS.length)];
+    h+=`<div class="full-reveal">
+      <div class="tts-row" style="margin-bottom:.3rem">${ttsBtn(s.en,'cr-rev-'+G.si)}<span class="ren">${esc(s.en)}</span></div>
+      <div class="rko">${esc(s.ko)}</div>
+      <div class="cheer">${cheer}</div>
+    </div>`;
+  }
+  h+=`<div class="nav">
+    <button class="btn pri" onclick="startCQuiz()">🧩 배열 퀴즈 →</button>
+    <button class="btn skip" onclick="skipToNext()">⏭ 다음 문장으로</button>
+  </div>`;
+  return h;
+}
+
+/* ── CHUNK QUIZ ── */
+function rCQuiz(s){
+  const c=s.chunks[G.cqi];
+  if(!G.pieces.length&&!G.arrDone)initArr(G.cDir);
+  let h='';
+  h+=`<div class="stage-hd"><div class="stage-icon si-break">🧩</div><div><div class="stage-title">Sentence Breaker — 배열</div><div class="stage-sub">청크 ${G.cqi+1} / ${s.chunks.length}</div></div></div>`;
+  h+=`<div class="dir-toggle">
+    <div class="dtog ${G.cDir==='en2ko'?'active':''}" onclick="setCDir('en2ko')">영어 보고 → 한국어 배열</div>
+    <div class="dtog ${G.cDir==='ko2en'?'active':''}" onclick="setCDir('ko2en')">한국어 보고 → 영어 배열</div>
+  </div>`;
+  if(G.cDir==='en2ko'){
+    h+=`<div class="tts-row" style="margin-bottom:.4rem">${ttsBtn(c.en,'cq-'+G.si+'-'+G.cqi)}</div>`;
+    h+=`<div class="sb-prompt">${esc(c.en)}</div>`;
+  }else{
+    h+=`<div class="tts-row" style="margin-bottom:.4rem">${ttsBtn(c.en,'cq2-'+G.si+'-'+G.cqi)}</div>`;
+    h+=`<div class="sb-prompt-ko">${esc(c.ko)}</div>`;
+  }
+  h+=`<div style="font-size:12px;color:var(--txm);margin-bottom:.5rem;font-weight:700;">▼ 조각을 순서대로 클릭해 완성하세요</div>`;
+  let zCls='ans-zone';
+  if(G.arrDone)zCls+=G.arrOk?' ok':' ng';
+  h+=`<div class="${zCls}">`;
+  if(!G.placed.length)h+=`<span class="ans-empty">여기에 조각이 놓입니다</span>`;
+  else G.placed.forEach((pi,si)=>h+=`<span class="chip chip-placed" onclick="${G.arrDone?'':'remPiece('+si+')'}">${esc(G.pieces[pi].t)}</span>`);
+  h+=`</div>`;
+  h+=`<div class="chip-pool">`;
+  G.pieces.forEach((p,pi)=>{if(!G.placed.includes(pi))h+=`<span class="chip chip-idle" onclick="addPiece(${pi})">${esc(p.t)}</span>`;});
+  h+=`</div>`;
+  if(G.arrDone){
+    if(G.arrOk)h+=`<div class="fb ok">✓ 완벽해요! 🎉</div>`;
+    else h+=`<div class="fb ng">✗ 오답. 정답: <strong>${esc(G.cDir==='en2ko'?c.ko:c.en)}</strong></div>`;
+    h+=`<div class="nav">${!G.arrOk?'<button class="btn ghost" onclick="retryArr()">🔄 다시 시도</button>':''}<button class="btn pri" onclick="nextChunk()">다음 →</button></div>`;
+  }else{
+    if(G.placed.length===G.pieces.length)h+=`<div class="nav"><button class="btn grn" onclick="checkArr()">✅ 정답 확인!</button><button class="btn skip" onclick="skipToNext()">⏭ 다음 문장</button></div>`;
+    else h+=`<div class="nav"><button class="btn skip" onclick="skipToNext()">⏭ 다음 문장으로 건너뛰기</button></div>`;
+  }
+  return h;
+}
+
+/* ── SENTENCE ORDER ── */
+function rOrder(){
+  if(!G.orderItems.length)initOrder();
+  let h='';
+  h+=`<div class="prog-card"><div class="prog-row"><span class="prog-label">🏁 최종 도전</span><span class="prog-sent">22문장 순서 배열</span></div></div>`;
+  h+=`<div class="card"><div class="stage-hd"><div class="stage-icon si-order">📝</div><div><div class="stage-title">문장 순서 배열</div><div class="stage-sub">이야기 순서대로 배열하세요!</div></div></div>`;
+  h+=`<div class="order-instructions">👆 아래 문장을 순서대로 클릭해서 위에 배치하세요. 잘못 놓은 건 다시 클릭하면 돌아와요.</div>`;
+  let zCls='order-ans-zone';
+  if(G.orderDone)zCls+=G.orderOk?' ok':' ng';
+  h+=`<div class="sb-label" style="margin-bottom:.4rem">정렬된 문장 (${G.orderPlaced.length} / ${DATA.length})</div>`;
+  h+=`<div class="${zCls}">`;
+  if(!G.orderPlaced.length)h+=`<div style="padding:.4rem;font-size:11px;color:var(--txf)">여기에 문장이 쌓입니다...</div>`;
+  else G.orderPlaced.forEach((idx,slot)=>{
+    const cls=G.orderDone?(idx===slot?'correct-pos':'wrong-pos'):'placed';
+    h+=`<div class="order-sent ${cls}" onclick="${G.orderDone?'':'remOrderSent('+slot+')'}">
+      <span class="order-num">${slot+1}</span>
+      <div style="flex:1"><div class="tts-row">${ttsBtn(DATA[idx].en,'op-'+slot)}<span class="order-txt">${esc(DATA[idx].en)}</span></div></div>
+    </div>`;
+  });
+  h+=`</div>`;
+  if(!G.orderDone){
+    h+=`<div class="sb-label" style="margin-top:.8rem;margin-bottom:.4rem">남은 문장들</div>`;
+    G.orderItems.forEach(idx=>{
+      if(!G.orderPlaced.includes(idx))
+        h+=`<div class="order-sent" onclick="addOrderSent(${idx})">
+          <span class="order-num">?</span>
+          <div style="flex:1"><div class="tts-row">${ttsBtn(DATA[idx].en,'pool-'+idx)}<span class="order-txt">${esc(DATA[idx].en)}</span></div></div>
+        </div>`;
+    });
+    if(G.orderPlaced.length===DATA.length)h+=`<div class="nav"><button class="btn grn" onclick="checkOrder()">✅ 정답 확인!</button></div>`;
+  }else{
+    if(G.orderOk)h+=`<div class="fb ok">✓ 완벽해요! 모든 문장 순서가 정확합니다! 🏆</div>`;
+    else{const corr=G.orderPlaced.filter((idx,slot)=>idx===slot).length;h+=`<div class="fb ng">✗ ${corr}/${DATA.length} 정답. 초록=정답, 빨강=오답.</div>`;}
+    h+=`<div class="nav">${!G.orderOk?'<button class="btn ghost" onclick="retryOrder()">🔄 다시 시도</button>':''}<button class="btn pri" onclick="finishOrder()">결과 보기 →</button></div>`;
+  }
+  h+=`</div>`;
+  return h;
+}
+
+/* ── FOCUS REVIEW ── */
+function rFocReview(){
+  const fw=focWords();
+  let h=`<div class="fr-box"><div class="fr-title">🎯 집중 단어 복습!</div><div class="fr-sub">3회 이상 틀린 단어예요</div>`;
+  fw.forEach(en=>{
+    const w=DATA.flatMap(d=>d.words).find(x=>x.en===en);
+    if(!w)return;
+    h+=`<div class="fr-item"><div><div class="fr-en">${esc(w.en)}</div><div class="fr-err">오답 ${G.wErr[en]}회</div></div><div style="display:flex;align-items:center;gap:8px">${ttsBtn(w.en,'fr-'+en)}<span class="fr-ko">${esc(w.ko)}</span></div></div>`;
+  });
+  h+=`</div><div class="nav"><button class="btn pri" onclick="G.focReview=false;G.orderPhase=true;initOrder();render()">📝 문장 순서 배열 도전! →</button></div>`;
+  return h;
+}
+
+/* ── RESULT ── */
+function rResult(){
+  const pct=G.total>0?Math.round(G.score/G.total*100):0;
+  const stars=pct>=90?'⭐⭐⭐':pct>=70?'⭐⭐':pct>=50?'⭐':'';
+  const icon=pct>=80?'🏆':pct>=60?'🥈':'📚';
+  const msg=pct>=80?'완벽해요! 진짜 챔피언! Never stop pedaling! 🚴':pct>=60?'잘했어요! 조금만 더 연습하면 완벽해져요 💪':'괜찮아요! 다시 도전하면 반드시 더 잘할 수 있어요 📚';
+  const lv=getLv(G.xp);
+  const wEpct=G.bd.wET?Math.round(G.bd.wE/G.bd.wET*100):0;
+  const wKpct=G.bd.wKT?Math.round(G.bd.wK/G.bd.wKT*100):0;
+  const cEKpct=G.bd.cEKT?Math.round(G.bd.cEK/G.bd.cEKT*100):0;
+  const cKEpct=G.bd.cKET?Math.round(G.bd.cKE/G.bd.cKET*100):0;
+  const ordpct=G.bd.ordT?Math.round(G.bd.ord/G.bd.ordT*100):0;
+  const now=new Date();
+  const dt=`${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  return `<div class="res-hero"><div class="res-ico">${icon}</div><div class="res-name">최종 결과</div><div class="res-stars">${stars}</div><div class="res-pct">${pct}%</div><div class="res-sub">${G.score}/${G.total}문제 · XP ${G.xp} · ${lv.icon} ${lv.name}</div><div class="res-msg">${msg}</div></div>
+  <div class="rbd"><div class="rbd-t">📊 항목별 성적</div>
+    <div class="rbd-row"><span class="rbd-lbl">단어 영→한</span><div class="rbd-bar"><div class="rbd-fill" style="width:${wEpct}%"></div></div><span class="rbd-val">${G.bd.wE}/${G.bd.wET}</span></div>
+    <div class="rbd-row"><span class="rbd-lbl">단어 한→영</span><div class="rbd-bar"><div class="rbd-fill" style="width:${wKpct}%"></div></div><span class="rbd-val">${G.bd.wK}/${G.bd.wKT}</span></div>
+    <div class="rbd-row"><span class="rbd-lbl">청크 영→한</span><div class="rbd-bar"><div class="rbd-fill" style="width:${cEKpct}%"></div></div><span class="rbd-val">${G.bd.cEK}/${G.bd.cEKT}</span></div>
+    <div class="rbd-row"><span class="rbd-lbl">청크 한→영</span><div class="rbd-bar"><div class="rbd-fill" style="width:${cKEpct}%"></div></div><span class="rbd-val">${G.bd.cKE}/${G.bd.cKET}</span></div>
+    <div class="rbd-row"><span class="rbd-lbl">문장 순서</span><div class="rbd-bar"><div class="rbd-fill" style="width:${ordpct}%"></div></div><span class="rbd-val">${G.bd.ord}/${G.bd.ordT}</span></div>
+    <div class="rbd-dt">완료: ${dt}</div>
+  </div>
+  <div class="nav" style="justify-content:center"><button class="btn" onclick="window.print()">📄 결과 인쇄</button><button class="btn pri" onclick="initG();showIntro()">🔄 다시 하기</button></div>`;
+}
+
+/* ── ACTIONS ── */
+function jumpStage(st){
+  if(st==='battle_en'||st==='battle'){G.stage='battle_en';G.wqi=0;G.wqOpts=[];G.wqAns=null;G.wqHinted=false;G.wqRetry=false;G.wqRetryAns=null;}
+  else if(st==='cread'){G.stage='cread';G.cRev=[];}
+  else if(st==='cquiz'){G.stage='cquiz';G.cqi=0;G.cDir='en2ko';G.pieces=[];G.placed=[];G.arrDone=false;}
+  else{G.stage=st;}
+  render();
+}
+
+function skipSentence(){
+  G.si++;
+  if(G.si>=DATA.length){if(focWords().length>0){G.focReview=true;}else{G.orderPhase=true;initOrder();}}
+  else{resetSentenceState();}
+  render();
+}
+
+function skipToNext(){
+  addXP(5);
+  G.si++;
+  if(G.si>=DATA.length){if(focWords().length>0){G.focReview=true;}else{G.orderPhase=true;initOrder();}}
+  else{resetSentenceState();G.stage='learn';}
+  render();
+}
+
+function flipCard(i){if(!G.wRev.includes(i))G.wRev.push(i);render();}
+function flipChunk(i){if(!G.cRev.includes(i))G.cRev.push(i);render();}
+function showHint(){G.wqHinted=true;render();}
+function startCQuiz(){G.stage='cquiz';G.cqi=0;G.cDir='en2ko';G.pieces=[];G.placed=[];G.arrDone=false;render();}
+function setCDir(d){if(G.cDir===d)return;G.cDir=d;G.pieces=[];G.placed=[];G.arrDone=false;G.arrOk=false;render();}
+
+function ansW(opt,correct){
+  const isRetry=G.wqRetry;
+  if(!isRetry&&G.wqAns!==null)return;
+  if(isRetry&&G.wqRetryAns!==null)return;
+  const ok=opt===correct;
+  const isEn=G.stage==='battle_en';
+  G.total++;
+  if(isEn){G.bd.wET++;if(ok)G.bd.wE++;}else{G.bd.wKT++;if(ok)G.bd.wK++;}
+  if(isRetry){G.wqRetryAns=opt;if(ok){G.score++;addXP(5);}}
+  else{
+    G.wqAns=opt;
+    if(ok){G.score++;G.combo++;G.streak++;addXP(10+(G.combo-1)*5);}
+    else{G.wErr[DATA[G.si].words[G.wqi].en]=(G.wErr[DATA[G.si].words[G.wqi].en]||0)+1;G.combo=0;}
+  }
+  render();
+}
+
+function retryW(){G.wqRetry=true;G.wqRetryAns=null;G.wqOpts=makeWOpts(G.stage==='battle_en'?'en2ko':'ko2en');render();}
+
+function nextW(){
+  const s=DATA[G.si];
+  G.wqAns=null;G.wqRetry=false;G.wqRetryAns=null;G.wqOpts=[];G.wqHinted=false;
+  if(G.stage==='battle_en'){G.wqi++;if(G.wqi>=s.words.length){G.stage='battle_ko';G.wqi=0;}}
+  else{G.wqi++;if(G.wqi>=s.words.length){jumpStage('cread');return;}}
+  render();
+}
+
+function addPiece(pi){if(G.arrDone)return;G.placed.push(pi);render();}
+function remPiece(si){if(G.arrDone)return;G.placed.splice(si,1);render();}
+function retryArr(){G.placed=[];G.arrDone=false;G.arrOk=false;render();}
+
+function checkArr(){
+  const c=DATA[G.si].chunks[G.cqi];
+  const correct=toPieces(G.cDir==='en2ko'?c.ko:c.en);
+  const ans=G.placed.map(pi=>G.pieces[pi].t);
+  const ok=correct.length===ans.length&&correct.every((t,i)=>t===ans[i]);
+  G.arrDone=true;G.arrOk=ok;G.total++;
+  if(G.cDir==='en2ko'){G.bd.cEKT++;if(ok){G.bd.cEK++;G.score++;addXP(15);}}
+  else{G.bd.cKET++;if(ok){G.bd.cKE++;G.score++;addXP(15);}}
+  render();
+}
+
+function nextChunk(){
+  const s=DATA[G.si];
+  const wasEK=G.cDir==='en2ko';
+  G.pieces=[];G.placed=[];G.arrDone=false;G.arrOk=false;
+  if(wasEK){G.cDir='ko2en';initArr('ko2en');}
+  else{
+    G.cqi++;
+    if(G.cqi>=s.chunks.length){
+      addXP(20);G.si++;
+      if(G.si>=DATA.length){if(focWords().length>0){G.focReview=true;}else{G.orderPhase=true;initOrder();}}
+      else{resetSentenceState();}
+    }else{G.cDir='en2ko';}
+  }
+  render();
+}
+
+function addOrderSent(idx){if(G.orderDone)return;G.orderPlaced.push(idx);render();}
+function remOrderSent(slot){if(G.orderDone)return;G.orderPlaced.splice(slot,1);render();}
+function retryOrder(){G.orderPlaced=[];G.orderDone=false;G.orderOk=false;render();}
+
+function checkOrder(){
+  G.orderDone=true;
+  const ok=G.orderPlaced.every((idx,slot)=>idx===slot);
+  G.orderOk=ok;
+  const corr=G.orderPlaced.filter((idx,slot)=>idx===slot).length;
+  G.bd.ordT+=DATA.length;G.bd.ord+=corr;G.score+=corr;G.total+=DATA.length;
+  if(ok)addXP(80);else addXP(corr*3);
+  render();
+}
+
+function finishOrder(){G.orderPhase=false;G.done=true;render();}
+
+function showIntro(){
+  const app=document.getElementById('app');
+  app.innerHTML=`<div class="ns-hero">
+    <div class="ns-emoji">🚴</div>
+    <div class="ns-title">Spirit of <span>Sports</span></div>
+    <div class="ns-desc">From a Kid to a Champion<br>22문장 영어 완전 정복 게임!<br>원하는 단계부터 자유롭게 학습 가능!</div>
+    <div class="feat-grid">
+      <div class="feat"><div class="feat-ico">📖</div><div class="feat-txt">플래시카드 단어학습</div></div>
+      <div class="feat"><div class="feat-ico">🔊</div><div class="feat-txt">모든 단어·문장 음성</div></div>
+      <div class="feat"><div class="feat-ico">🧩</div><div class="feat-txt">영↔한 청크 배열</div></div>
+      <div class="feat"><div class="feat-ico">⏭</div><div class="feat-txt">단계 자유롭게 건너뛰기</div></div>
+    </div>
+  </div>
+  <div class="nav" style="justify-content:center;margin-top:.8rem">
+    <button class="btn pri" onclick="render()">🚀 게임 시작!</button>
+    <button class="btn skip" onclick="showMenu()">📋 문장 선택해서 시작</button>
+  </div>`;
+}
+
+initG();showIntro();
+</script>
+</body>
+</html>
