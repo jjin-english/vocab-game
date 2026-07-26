@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>to avoid being killed - 문법 연습</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    background: linear-gradient(135deg, #43e97b 0%, #38a1db 100%);
+    min-height: 100vh;
+    padding: 12px;
+  }
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+  .header {
+    background: linear-gradient(135deg, #0f9b6e, #2b8ac9);
+    color: #fff;
+    padding: 20px 16px 16px;
+    text-align: center;
+  }
+  .header h1 { font-size: 17px; margin: 0 0 4px; }
+  .header p { font-size: 12px; margin: 0; opacity: 0.9; }
+
+  .keyphrase {
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 8px 10px;
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .tabs {
+    display: flex;
+    background: #f1f0fb;
+    border-bottom: 2px solid #e5e3f7;
+  }
+  .tab {
+    flex: 1;
+    padding: 12px 4px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: #7c7a99;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+  }
+  .tab.active {
+    color: #0f9b6e;
+    border-bottom: 3px solid #0f9b6e;
+    background: #fff;
+  }
+
+  .panel { display: none; padding: 16px 16px 22px; }
+  .panel.active { display: block; }
+
+  .rule-box {
+    background: #f2fbf7;
+    border: 1px solid #d7f0e4;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #2f4b3f;
+    line-height: 1.6;
+  }
+  .rule-box b { color: #0f9b6e; }
+
+  .scorebar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f7ff;
+    border: 1px solid #e5e3f7;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #4b4b63;
+  }
+  .scorebar b { color: #0f9b6e; font-size: 15px; }
+
+  .progress-wrap {
+    height: 6px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #0f9b6e, #2b8ac9);
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  .qcard {
+    background: #fafaff;
+    border: 1px solid #ececfa;
+    border-radius: 14px;
+    padding: 18px 16px;
+    margin-bottom: 16px;
+  }
+  .sentence-en {
+    font-size: 15.5px;
+    line-height: 1.7;
+    color: #2d2b4e;
+    margin-bottom: 8px;
+  }
+  .sentence-en .blank-tag {
+    display: inline-block;
+    padding: 1px 8px;
+    background: #d7f0e4;
+    border-radius: 6px;
+    font-weight: 700;
+    color: #0f9b6e;
+  }
+  .sentence-kr {
+    font-size: 12.5px;
+    color: #8b899f;
+    line-height: 1.5;
+    margin-bottom: 14px;
+    padding-top: 8px;
+    border-top: 1px dashed #e0dff0;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .opt {
+    padding: 13px 14px;
+    background: #fff;
+    border: 2px solid #e5e3f7;
+    border-radius: 12px;
+    font-size: 14.5px;
+    color: #2d2b4e;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .opt:active { transform: scale(0.98); }
+  .opt.correct { background: #e3f9ea; border-color: #34c759; color: #1a7a3a; font-weight: 600; }
+  .opt.wrong { background: #fdeaea; border-color: #ff3b30; color: #b3261e; font-weight: 600; }
+  .opt.disabled { pointer-events: none; }
+
+  .btn {
+    width: 100%;
+    padding: 13px;
+    margin-top: 14px;
+    background: #0f9b6e;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn:active { opacity: 0.85; }
+  .btn.secondary {
+    background: #fff;
+    color: #0f9b6e;
+    border: 2px solid #0f9b6e;
+  }
+
+  .feedback-msg {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 10px;
+    min-height: 32px;
+    line-height: 1.4;
+  }
+  .feedback-msg.ok { color: #1a7a3a; }
+  .feedback-msg.no { color: #b3261e; }
+
+  .result-box { text-align: center; padding: 20px 10px; }
+  .result-score { font-size: 40px; font-weight: 800; color: #0f9b6e; margin-bottom: 4px; }
+  .result-sub { font-size: 13px; color: #8b899f; margin-bottom: 18px; }
+
+  .review-item {
+    background: #fdf6f6;
+    border: 1px solid #f3d9d9;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    font-size: 13.5px;
+    text-align: left;
+  }
+  .review-item .rq { font-weight: 700; color: #2d2b4e; margin-bottom: 4px; }
+  .review-item .ra-wrong { color: #b3261e; }
+  .review-item .ra-correct { color: #1a7a3a; font-weight: 600; }
+  .review-item .rmean { color: #8b899f; font-size: 12px; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🏃 문법 집중 연습</h1>
+    <p>지문 문장: they had to have their wits about them / to avoid being killed.</p>
+    <div class="keyphrase">"to avoid being killed" 뜯어보기</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="g1">to부정사(목적)</div>
+    <div class="tab" data-tab="g2">avoid+ing</div>
+    <div class="tab" data-tab="g3">being+p.p.</div>
+  </div>
+
+  <div id="all-panels"></div>
+</div>
+
+<script>
+// ===== 문법 데이터 =====
+const grammarTopics = [
+  {
+    id: "g1",
+    title: "① to부정사의 목적 (~하지 않기 위해서)",
+    rule: "\"to + 동사원형\"이 <b>왜 그렇게 했는지(목적/이유)</b>를 설명할 때가 있어요.<br>예: They were careful <b>to avoid</b> being killed. (죽지 않으려고 조심했다)",
+    questions: [
+      {
+        text: "They had to be careful [BLANK] being killed by predators.",
+        options: ["to avoid", "avoiding", "avoid", "avoided"],
+        answer: "to avoid",
+        kr: "그들은 포식자에게 죽임을 당하지 않기 위해서 조심해야 했다."
+      },
+      {
+        text: "She studied hard [BLANK] pass the exam.",
+        options: ["to", "for", "of", "at"],
+        answer: "to",
+        kr: "그녀는 시험에 합격하기 위해서 열심히 공부했다."
+      },
+      {
+        text: "He got up early [BLANK] catch the first bus.",
+        options: ["to", "for", "at", "of"],
+        answer: "to",
+        kr: "그는 첫 버스를 타기 위해서 일찍 일어났다."
+      },
+      {
+        text: "We saved money [BLANK] buy a new computer.",
+        options: ["to", "for", "of", "with"],
+        answer: "to",
+        kr: "우리는 새 컴퓨터를 사기 위해서 돈을 모았다."
+      }
+    ]
+  },
+  {
+    id: "g2",
+    title: "② avoid + 동명사 (avoid 뒤엔 -ing만!)",
+    rule: "avoid는 특별한 동사라서 뒤에 <b>to + 동사원형이 아니라 -ing(동명사)</b>만 써요.<br>같은 친구들: enjoy, finish, mind, practice, give up, keep",
+    questions: [
+      {
+        text: "They avoided [BLANK] about the accident.",
+        options: ["talking", "to talk", "talk", "talked"],
+        answer: "talking",
+        kr: "그들은 그 사고에 대해 말하는 것을 피했다."
+      },
+      {
+        text: "I enjoy [BLANK] books on rainy days.",
+        options: ["reading", "to read", "read", "reads"],
+        answer: "reading",
+        kr: "나는 비 오는 날 책 읽는 것을 즐긴다."
+      },
+      {
+        text: "She finished [BLANK] her homework before dinner.",
+        options: ["writing", "to write", "write", "wrote"],
+        answer: "writing",
+        kr: "그녀는 저녁 먹기 전에 숙제 쓰는 것을 끝냈다."
+      },
+      {
+        text: "We should avoid [BLANK] too much sugar.",
+        options: ["eating", "to eat", "eat", "ate"],
+        answer: "eating",
+        kr: "우리는 설탕을 너무 많이 먹는 것을 피해야 한다."
+      }
+    ]
+  },
+  {
+    id: "g3",
+    title: "③ 동명사의 수동태 (being + p.p.)",
+    rule: "\"~당하는 것, ~되는 것\"이라는 뜻을 동명사로 만들 때는 <b>being + 과거분사(p.p.)</b>를 써요.<br>예: avoid <b>being killed</b> (죽임을 당하는 것을 피하다)",
+    questions: [
+      {
+        text: "They had to have their wits about them to avoid [BLANK].",
+        options: ["being killed", "killing", "kill", "to kill"],
+        answer: "being killed",
+        kr: "그들은 죽임을 당하는 것을 피하기 위해 항상 정신을 바짝 차려야 했다."
+      },
+      {
+        text: "The cat doesn't like [BLANK] by strangers.",
+        options: ["being touched", "touching", "touch", "to touching"],
+        answer: "being touched",
+        kr: "그 고양이는 낯선 사람에게 만져지는 것을 좋아하지 않는다."
+      },
+      {
+        text: "Nobody enjoys [BLANK] in front of others.",
+        options: ["being criticized", "criticizing", "criticize", "to criticize"],
+        answer: "being criticized",
+        kr: "아무도 다른 사람들 앞에서 비판받는 것을 좋아하지 않는다."
+      },
+      {
+        text: "The children were afraid of [BLANK] alone in the dark.",
+        options: ["being left", "leaving", "leave", "to leave"],
+        answer: "being left",
+        kr: "그 아이들은 어둠 속에 혼자 남겨지는 것을 두려워했다."
+      }
+    ]
+  }
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ===== 패널 생성 =====
+const allPanelsEl = document.getElementById('all-panels');
+grammarTopics.forEach((topic, ti) => {
+  const panel = document.createElement('div');
+  panel.className = 'panel' + (ti === 0 ? ' active' : '');
+  panel.id = 'panel-' + topic.id;
+  panel.innerHTML = `
+    <div class="rule-box"><b>${topic.title}</b><br><br>${topic.rule}</div>
+    <div class="scorebar">
+      <span>진행 <b id="${topic.id}-progress">0/${topic.questions.length}</b></span>
+      <span>점수 <b id="${topic.id}-score">0</b></span>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="${topic.id}-bar"></div></div>
+    <div id="${topic.id}-quiz"></div>
+    <div id="${topic.id}-result" style="display:none"></div>
+  `;
+  allPanelsEl.appendChild(panel);
+});
+
+// ===== 탭 전환 =====
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ===== 퀴즈 엔진 =====
+function buildQuiz(topic) {
+  const qList = shuffle(topic.questions).map(q => ({ ...q, choices: shuffle(q.options) }));
+  const state = { idx: 0, score: 0, wrongs: [] };
+  const quizEl = document.getElementById(topic.id + '-quiz');
+  const resultEl = document.getElementById(topic.id + '-result');
+
+  function updateBar() {
+    document.getElementById(topic.id + '-progress').textContent = state.idx + '/' + qList.length;
+    document.getElementById(topic.id + '-score').textContent = state.score;
+    document.getElementById(topic.id + '-bar').style.width = (state.idx / qList.length * 100) + '%';
+  }
+
+  function render() {
+    if (state.idx >= qList.length) {
+      showResult();
+      return;
+    }
+    const q = qList[state.idx];
+    const displayText = q.text.replace('[BLANK]', '<span class="blank-tag">______</span>');
+
+    quizEl.innerHTML = `
+      <div class="qcard">
+        <div class="sentence-en">${displayText}</div>
+        <div class="sentence-kr">해석: ${q.kr}</div>
+        <div class="options">
+          ${q.choices.map(c => `<div class="opt" data-val="${c}">${c}</div>`).join('')}
+        </div>
+        <div class="feedback-msg" id="${topic.id}-fb"></div>
+      </div>
+    `;
+    updateBar();
+
+    quizEl.querySelectorAll('.opt').forEach(opt => {
+      opt.addEventListener('click', () => {
+        if (opt.classList.contains('disabled')) return;
+        quizEl.querySelectorAll('.opt').forEach(o => o.classList.add('disabled'));
+        const chosen = opt.dataset.val;
+        const fb = document.getElementById(topic.id + '-fb');
+        if (chosen === q.answer) {
+          opt.classList.add('correct');
+          state.score++;
+          fb.textContent = '정답입니다! ✓';
+          fb.className = 'feedback-msg ok';
+        } else {
+          opt.classList.add('wrong');
+          quizEl.querySelectorAll('.opt').forEach(o => {
+            if (o.dataset.val === q.answer) o.classList.add('correct');
+          });
+          fb.textContent = '틀렸습니다. 정답: ' + q.answer;
+          fb.className = 'feedback-msg no';
+          state.wrongs.push({
+            q: q.text.replace('[BLANK]', '(' + q.answer + ')'),
+            your: chosen,
+            correct: q.answer,
+            mean: q.kr
+          });
+        }
+        setTimeout(() => {
+          state.idx++;
+          render();
+        }, 1100);
+      });
+    });
+  }
+
+  function showResult() {
+    updateBar();
+    quizEl.style.display = 'none';
+    resultEl.style.display = 'block';
+    const total = qList.length;
+    let html = `
+      <div class="result-box">
+        <div class="result-score">${state.score} / ${total}</div>
+        <div class="result-sub">${state.wrongs.length === 0 ? '완벽해요! 모두 맞혔습니다 🎉' : state.wrongs.length + '개 틀렸어요. 아래에서 복습하세요.'}</div>
+    `;
+    if (state.wrongs.length > 0) {
+      html += state.wrongs.map(w => `
+        <div class="review-item">
+          <div class="rq">${w.q}</div>
+          <div class="ra-wrong">내 답: ${w.your}</div>
+          <div class="ra-correct">정답: ${w.correct}</div>
+          <div class="rmean">${w.mean}</div>
+        </div>
+      `).join('');
+    }
+    html += `<button class="btn secondary" onclick="location.reload()">다시 풀기</button></div>`;
+    resultEl.innerHTML = html;
+  }
+
+  render();
+}
+
+grammarTopics.forEach(topic => buildQuiz(topic));
+</script>
+</body>
+</html>
