@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>9회·10회 단어테스트</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0; padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+    background: linear-gradient(160deg, #fdf2f8 0%, #f3e8ff 100%);
+    min-height: 100vh;
+    color: #333;
+  }
+  .wrap {
+    max-width: 480px; margin: 0 auto;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+    display: flex; flex-direction: column;
+  }
+  .card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 22px 18px;
+    box-shadow: 0 4px 18px rgba(180,120,180,0.15);
+    flex: 1;
+    display: flex; flex-direction: column;
+  }
+  h1 { font-size: 1.35em; margin: 0 0 6px; color: #a4478c; text-align: center; }
+  .sub { text-align:center; color:#999; font-size:0.85em; margin-bottom: 18px; }
+  .badge {
+    display:inline-block; background:#f3d9ee; color:#a4478c;
+    border-radius: 8px; padding: 2px 8px; font-size:0.75em; font-weight:600; margin-right:6px;
+  }
+  .start-btn, .action-btn {
+    background: linear-gradient(135deg,#e08fce,#c17ae0);
+    color:#fff; border:none; border-radius: 14px;
+    padding: 15px; font-size: 1.05em; font-weight: 700;
+    width: 100%; margin-top: 14px; cursor: pointer;
+  }
+  .action-btn.secondary { background: #f1f1f5; color:#555; }
+  .action-btn.review { background: linear-gradient(135deg,#7fd8b0,#4cb887); }
+  .top-link {
+    text-align:right; font-size:0.8em; color:#b184a8; cursor:pointer; margin-bottom:4px;
+    text-decoration: underline;
+  }
+  .progress-bar-bg { width:100%; height:8px; background:#f0e0ee; border-radius:6px; overflow:hidden; margin-bottom:14px; }
+  .progress-bar-fill { height:100%; background: linear-gradient(90deg,#e08fce,#c17ae0); transition: width 0.3s; }
+  .q-meta { font-size:0.8em; color:#b184a8; margin-bottom:6px; font-weight:600; }
+  .q-text {
+    font-size: 1.25em; font-weight:700; text-align:center;
+    padding: 22px 8px; line-height:1.5; color:#333;
+    min-height: 70px; display:flex; align-items:center; justify-content:center;
+  }
+  .q-sentence { font-size:1.08em; font-weight:500; text-align:left; line-height:1.7; }
+  .blank { color:#c17ae0; font-weight:800; border-bottom: 2px solid #c17ae0; padding:0 4px; }
+  .options { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+  .opt-btn {
+    background:#faf5fb; border: 2px solid #eadcf0; border-radius: 12px;
+    padding: 14px 12px; font-size: 1em; text-align:left; cursor:pointer; color:#444;
+    transition: all 0.15s;
+  }
+  .opt-btn.correct { background:#dcf7e3; border-color:#4caf50; color:#1e6b2e; font-weight:700; }
+  .opt-btn.wrong { background:#fde0e0; border-color:#e05353; color:#a12727; font-weight:700; }
+  .opt-btn.disabled { pointer-events:none; }
+  .next-hint { text-align:center; color:#999; font-size:0.85em; margin-top:14px; min-height:20px; }
+  .score-big { text-align:center; font-size:2.6em; font-weight:800; color:#a4478c; margin: 10px 0 4px; }
+  .score-sub { text-align:center; color:#888; margin-bottom: 18px; font-size:0.9em; }
+  .review-list { margin-top: 6px; }
+  .review-item {
+    background:#fff6fb; border:1px solid #f2dbee; border-radius:10px;
+    padding:10px 12px; margin-bottom:8px; font-size:0.92em;
+  }
+  .review-item .rq { color:#555; margin-bottom:4px; }
+  .review-item .ra { color:#1e6b2e; font-weight:700; }
+  .empty-note { text-align:center; color:#999; padding:10px 0; }
+  .resume-box {
+    background:#fff3f9; border:1.5px dashed #e5a8d1; border-radius:14px;
+    padding:14px; margin-bottom:8px; font-size:0.9em; color:#8a4a76;
+  }
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card" id="app"></div></div>
+
+<script>
+// ===================== 저장 키 =====================
+const STORAGE_PROGRESS = 'kw_vocab_progress_v2';
+const STORAGE_WRONGBANK = 'kw_vocab_wrongbank_v2';
+
+// ===================== 단어 데이터 =====================
+const e2kData = [
+  ["striped","줄무늬가 있는"],["pattern","무늬"],["fashionable","유행을 따르는"],
+  ["senior","연장자"],["brief","간단한"],["overview","개요"],["turtle","거북이"],
+  ["staff","직원"],["attend","참가하다"],["design","고안하다"],["luggage","짐, 수하물"],
+  ["train station","기차역"],["at least","최소한, 적어도"],["scary","무서운"],
+  ["prescription","처방전"],["bicycle","자전거"],["convenient","편리한"],["choice","선택"],
+  ["guess","추측하다"],["scent","향"],["calm","진정시키다"],["academy","학원"],
+  ["comfortable","편안한"],["prepare","준비하다"],["apron","앞치마"],["feedback","피드백"],
+  ["section","구역, 구획"],["entrance","입구"]
+];
+const k2eData = [
+  ["메스꺼움","nausea"],["위험","risk"],["모으다","collect"],["포함하다","include"],
+  ["받다","receive"],["깨닫다","realize"],["시간표","timetable"],["가져오다","bring"],
+  ["연습","practice"],["연극","play"],["운동","exercise"],["옷","clothes"],
+  ["(비가) 마구 쏟아지다","pour"],["전시회","exhibit"],["진지한","serious"],
+  ["고마워하는","grateful"],["식사","meal"],["맞은편의","opposite"],["~사이에","between"],
+  ["빠르게","quickly"],["사람","person"],["전기의","electric"],["접을 수 있는","foldable"],
+  ["맛보다","taste"],["실험실","laboratory"],["도구","instrument"],["홍보","promotion"],
+  ["계산대","counter"]
+];
+const sentData = [
+  ["be supposed to","~하기로 되어 있다","You {{}} finish your homework before dinner."],
+  ["a variety of","다양한","The store sells {{}} snacks from different countries."],
+  ["warm-up","준비 운동","Do a proper {{}} before you start exercising."],
+  ["flea market","벼룩시장","We found a cheap lamp at the {{}} last weekend."],
+  ["make a photocopy","복사하다","Can you {{}} of this document for me?"],
+  ["go to bed","자다, 취침하다","It's already midnight, so you should {{}} now."],
+  ["side effect","부작용","This medicine may cause a {{}} like dizziness."],
+  ["training wheel","보조 바퀴","My little brother still uses a {{}} on his bike."],
+  ["be known for","~로 알려져 있다","This town {{}} its delicious seafood."],
+  ["on ones way to","~으로 가는 길에","I bumped into her {{}} school this morning."],
+  ["carry around","~을 갖고 다니다","He likes to {{}} his camera everywhere he goes."],
+  ["work out","운동하다","She goes to the gym to {{}} every evening."],
+  ["each other","서로","The twins always help {{}} with their homework."],
+  ["due","~하기로 되어 있는","The report is {{}} by Friday afternoon."]
+];
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function buildQuestions(){
+  const qs = [];
+  e2kData.forEach(([w,mean])=>{
+    const distractors = shuffle(e2kData.filter(x=>x[1]!==mean).map(x=>x[1])).slice(0,3);
+    qs.push({type:'e2k', q:w, answer:mean, options: shuffle([mean,...distractors])});
+  });
+  k2eData.forEach(([mean,w])=>{
+    const distractors = shuffle(k2eData.filter(x=>x[1]!==w).map(x=>x[1])).slice(0,3);
+    qs.push({type:'k2e', q:mean, answer:w, options: shuffle([w,...distractors])});
+  });
+  sentData.forEach(([phrase,mean,sentence])=>{
+    const distractors = shuffle(sentData.filter(x=>x[0]!==phrase).map(x=>x[0])).slice(0,3);
+    qs.push({type:'sent', q:sentence, answer:phrase, mean:mean, options: shuffle([phrase,...distractors])});
+  });
+  return shuffle(qs);
+}
+
+// ===================== 상태 =====================
+let allQuestions = [];   // 본 테스트 70문제 풀
+let retryPool = [];      // 복습용 문제 풀
+let currentIdx = 0;
+let score = 0;           // 본 테스트 점수
+let reviewScore = 0;     // 복습(오답만 다시 풀기) 이번 회차 맞은 개수
+let wrongList = [];      // 이번 회차에서 틀린 문제 (다음 오답노트로 저장됨)
+let isRetryMode = false;
+
+const app = document.getElementById('app');
+
+// ===================== 저장/불러오기 =====================
+function saveProgress(){
+  const pool = isRetryMode ? retryPool : allQuestions;
+  const data = {
+    pool, currentIdx, score, reviewScore, wrongList,
+    mode: isRetryMode ? 'retry' : 'main'
+  };
+  try{ localStorage.setItem(STORAGE_PROGRESS, JSON.stringify(data)); }catch(e){}
+}
+function clearProgress(){
+  try{ localStorage.removeItem(STORAGE_PROGRESS); }catch(e){}
+}
+function saveWrongBank(list){
+  try{
+    if(list && list.length>0) localStorage.setItem(STORAGE_WRONGBANK, JSON.stringify(list));
+    else localStorage.removeItem(STORAGE_WRONGBANK);
+  }catch(e){}
+}
+function loadProgress(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_PROGRESS)||'null'); }catch(e){ return null; }
+}
+function loadWrongBank(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_WRONGBANK)||'null'); }catch(e){ return null; }
+}
+
+// ===================== 화면 렌더링 =====================
+function renderStart(){
+  const saved = loadProgress();
+  const bank = loadWrongBank();
+
+  let resumeHtml = '';
+  if(saved && saved.pool && saved.currentIdx < saved.pool.length){
+    const modeLabel = saved.mode === 'retry' ? '오답 복습' : '본 테스트';
+    resumeHtml = `<div class="resume-box">
+      ⏸ 이전에 풀던 ${modeLabel}이 <b>${saved.currentIdx+1}번 문제</b>에서 멈춰있어요.
+    </div>
+    <button class="start-btn" onclick="resumeTest()">이어서 풀기 (${saved.currentIdx+1}번부터)</button>`;
+  }
+
+  let bankHtml = '';
+  if(bank && bank.length>0){
+    bankHtml = `<button class="action-btn review" onclick="startWrongReview()">📝 틀린 문제만 복습하기 (${bank.length}개)</button>`;
+  }
+
+  app.innerHTML = `
+    <h1>📘 9회·10회 단어테스트</h1>
+    <div class="sub">
+      <span class="badge">영한 28</span><span class="badge">한영 28</span><span class="badge">문장빈칸 14</span>
+      <br><br>중복 없이 총 70문제가 랜덤 순서로 출제됩니다.
+    </div>
+    ${resumeHtml}
+    ${bankHtml}
+    <div style="flex:1"></div>
+    <button class="${saved || bank ? 'action-btn secondary' : 'start-btn'}" onclick="startTest()">${saved || bank ? '처음부터 새로 시작' : '시작하기'}</button>
+  `;
+}
+
+function startTest(){
+  clearProgress();
+  allQuestions = buildQuestions();
+  currentIdx = 0; score = 0; reviewScore = 0; wrongList = [];
+  isRetryMode = false;
+  renderQuestion();
+}
+
+function resumeTest(){
+  const saved = loadProgress();
+  if(!saved){ startTest(); return; }
+  isRetryMode = saved.mode === 'retry';
+  if(isRetryMode) retryPool = saved.pool; else allQuestions = saved.pool;
+  currentIdx = saved.currentIdx;
+  score = saved.score || 0;
+  reviewScore = saved.reviewScore || 0;
+  wrongList = saved.wrongList || [];
+  renderQuestion();
+}
+
+function startWrongReview(){
+  const bank = loadWrongBank();
+  if(!bank || bank.length===0){ renderStart(); return; }
+  clearProgress();
+  retryPool = shuffle(bank);
+  currentIdx = 0; reviewScore = 0; wrongList = [];
+  isRetryMode = true;
+  renderQuestion();
+}
+
+function goHome(){
+  saveProgress();
+  renderStart();
+}
+
+function typeLabel(t){
+  if(t==='e2k') return '영어 → 한글 뜻';
+  if(t==='k2e') return '한글 뜻 → 영어';
+  return '문장 빈칸 채우기';
+}
+function displayPhrase(p){
+  return p === 'on ones way to' ? "on one's way to" : p;
+}
+
+function renderQuestion(){
+  const pool = isRetryMode ? retryPool : allQuestions;
+  if(currentIdx >= pool.length){
+    finishSession();
+    return;
+  }
+  saveProgress();
+
+  const q = pool[currentIdx];
+  const pct = Math.round((currentIdx/pool.length)*100);
+
+  let qHtml = '';
+  if(q.type==='sent'){
+    const parts = q.q.split('{{}}');
+    qHtml = `<div class="q-text q-sentence">${parts[0]}<span class="blank">______</span>${parts[1]}</div>`;
+  } else {
+    qHtml = `<div class="q-text">${q.q}</div>`;
+  }
+
+  const optsHtml = q.options.map((opt,i)=>
+    `<button class="opt-btn" data-idx="${i}">${displayPhrase(opt)}</button>`
+  ).join('');
+
+  app.innerHTML = `
+    <div class="top-link" onclick="goHome()">⏸ 나중에 이어하기 (자동 저장됨)</div>
+    <div class="q-meta">${typeLabel(q.type)} · ${currentIdx+1} / ${pool.length}${isRetryMode ? ' (복습)' : ''}</div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+    ${qHtml}
+    <div class="options">${optsHtml}</div>
+    <div class="next-hint" id="nextHint"></div>
+  `;
+
+  document.querySelectorAll('.opt-btn').forEach((btn)=>{
+    btn.addEventListener('click', function(){
+      selectOption(parseInt(btn.getAttribute('data-idx'), 10));
+    });
+  });
+}
+
+function selectOption(idx){
+  const pool = isRetryMode ? retryPool : allQuestions;
+  const q = pool[currentIdx];
+  const chosen = q.options[idx];
+  const isCorrect = chosen === q.answer;
+
+  const buttons = document.querySelectorAll('.opt-btn');
+  buttons.forEach(b=>b.classList.add('disabled'));
+  buttons.forEach((b,i)=>{
+    if(q.options[i] === q.answer) b.classList.add('correct');
+    else if(i === idx && !isCorrect) b.classList.add('wrong');
+  });
+
+  if(isCorrect){
+    if(isRetryMode) reviewScore++; else score++;
+    document.getElementById('nextHint').textContent = '정답입니다! 🎉';
+  } else {
+    document.getElementById('nextHint').textContent = `오답! 정답: ${displayPhrase(q.answer)}`;
+    wrongList.push(q);
+  }
+
+  currentIdx++;
+  saveProgress();
+
+  setTimeout(()=>{ renderQuestion(); }, 900);
+}
+
+function finishSession(){
+  clearProgress();
+  saveWrongBank(wrongList);
+
+  if(isRetryMode){
+    renderRetryResult();
+  } else {
+    renderMainResult();
+  }
+}
+
+function renderMainResult(){
+  const total = allQuestions.length;
+  app.innerHTML = `
+    <h1>결과</h1>
+    <div class="score-big">${score} / ${total}</div>
+    <div class="score-sub">정답률 ${Math.round((score/total)*100)}%</div>
+    ${wrongList.length>0 ? '<div style="font-weight:700;color:#a4478c;margin-bottom:6px;">📝 틀린 문제 (오답노트에 저장됨)</div>' : '<div class="empty-note">틀린 문제가 없어요! 완벽해요 👏</div>'}
+    ${buildReviewListHtml(wrongList)}
+    <div style="flex:1"></div>
+    ${wrongList.length>0 ? `<button class="action-btn review" onclick="startWrongReview()">지금 바로 틀린 문제 복습하기</button>` : ''}
+    <button class="action-btn secondary" onclick="renderStart()">홈으로</button>
+  `;
+}
+
+function renderRetryResult(){
+  const total = reviewScore + wrongList.length;
+  app.innerHTML = `
+    <h1>복습 결과</h1>
+    <div class="score-big">${reviewScore} / ${total}</div>
+    <div class="score-sub">이번 복습에서 새로 맞춘 개수예요. (처음 테스트 점수는 그대로 유지됩니다)</div>
+    ${wrongList.length>0 ? '<div style="font-weight:700;color:#a4478c;margin-bottom:6px;">📝 아직 틀린 문제 (계속 오답노트에 남아있어요)</div>' : '<div class="empty-note">모두 다 맞혔어요! 오답노트가 깨끗해졌어요 🎉</div>'}
+    ${buildReviewListHtml(wrongList)}
+    <div style="flex:1"></div>
+    ${wrongList.length>0 ? `<button class="action-btn review" onclick="startWrongReview()">남은 틀린 문제 다시 복습하기</button>` : ''}
+    <button class="action-btn secondary" onclick="renderStart()">홈으로</button>
+  `;
+}
+
+function buildReviewListHtml(list){
+  if(!list || list.length===0) return '';
+  return `<div class="review-list">` + list.map(q=>{
+    let qtext = q.type==='sent' ? q.q.replace('{{}}','_____') : q.q;
+    return `<div class="review-item">
+      <div class="rq">${typeLabel(q.type)}: ${qtext}</div>
+      <div class="ra">정답 → ${displayPhrase(q.answer)}${q.mean ? ' ('+q.mean+')' : ''}</div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+renderStart();
+</script>
+</body>
+</html>
