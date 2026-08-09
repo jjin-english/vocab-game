@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>단어 테스트 - 13, 14회</title>
+<style>
+  :root{
+    --pink: #f7d9e3;
+    --pink-dark: #e88ba8;
+    --purple: #b98be0;
+    --purple-dark: #8a5cc2;
+    --bg: #fdf6f9;
+    --text: #4a3b45;
+    --correct: #6fcf97;
+    --wrong: #eb5757;
+    --card: #ffffff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+    background: linear-gradient(135deg, var(--bg), #f3e8f7);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    padding: 20px 12px;
+    color: var(--text);
+  }
+  .app{
+    width:100%;
+    max-width: 480px;
+    background: var(--card);
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(180,120,160,0.18);
+    overflow:hidden;
+    min-height: 640px;
+    display:flex;
+    flex-direction:column;
+  }
+  .header{
+    background: linear-gradient(135deg, var(--pink-dark), var(--purple));
+    color:white;
+    padding: 24px 20px 20px;
+    text-align:center;
+    position:relative;
+  }
+  .header h1{
+    font-size: 22px;
+    font-weight:800;
+    letter-spacing:-0.5px;
+  }
+  .header p{
+    font-size: 13px;
+    opacity:0.9;
+    margin-top:4px;
+  }
+  .content{
+    flex:1;
+    padding: 20px;
+    display:flex;
+    flex-direction:column;
+  }
+  /* HOME SCREEN */
+  .stats-row{
+    display:flex;
+    gap:10px;
+    margin-bottom: 18px;
+  }
+  .stat-box{
+    flex:1;
+    background: #fbeef3;
+    border-radius:14px;
+    padding: 12px 8px;
+    text-align:center;
+  }
+  .stat-box .num{
+    font-size:20px;
+    font-weight:800;
+    color: var(--purple-dark);
+  }
+  .stat-box .label{
+    font-size:11px;
+    color:#8a7480;
+    margin-top:2px;
+  }
+  .section-title{
+    font-size:13px;
+    font-weight:700;
+    color:#a06b8a;
+    margin: 14px 0 8px;
+  }
+  .option-group{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom: 6px;
+  }
+  .option-chip{
+    flex:1;
+    min-width: 70px;
+    padding: 10px 6px;
+    border-radius: 12px;
+    border: 2px solid #f0d5e0;
+    background: #fff;
+    text-align:center;
+    font-size:13px;
+    font-weight:600;
+    color:#a06b8a;
+    cursor:pointer;
+    transition: all 0.15s;
+  }
+  .option-chip.selected{
+    background: var(--purple);
+    border-color: var(--purple);
+    color:white;
+  }
+  .start-btn{
+    margin-top: 20px;
+    width:100%;
+    padding: 16px;
+    border:none;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--pink-dark), var(--purple));
+    color:white;
+    font-size:16px;
+    font-weight:800;
+    cursor:pointer;
+    box-shadow: 0 6px 16px rgba(180,100,160,0.3);
+  }
+  .start-btn:active{ transform: scale(0.98); }
+  .retry-btn{
+    margin-top: 10px;
+    width:100%;
+    padding: 14px;
+    border: 2px solid var(--pink-dark);
+    border-radius: 16px;
+    background: white;
+    color: var(--pink-dark);
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .retry-btn:disabled{
+    opacity:0.4;
+    cursor:not-allowed;
+  }
+  .word-count-note{
+    text-align:center;
+    font-size:11px;
+    color:#b394a5;
+    margin-top:14px;
+  }
+  /* QUIZ SCREEN */
+  .progress-wrap{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom: 20px;
+  }
+  .progress-bar-bg{
+    flex:1;
+    height:8px;
+    background:#f5e3ea;
+    border-radius:6px;
+    overflow:hidden;
+  }
+  .progress-bar-fill{
+    height:100%;
+    background: linear-gradient(90deg, var(--pink-dark), var(--purple));
+    border-radius:6px;
+    transition: width 0.3s;
+  }
+  .progress-text{
+    font-size:12px;
+    font-weight:700;
+    color:#a06b8a;
+    white-space:nowrap;
+  }
+  .quiz-card{
+    background: #fdf1f6;
+    border-radius: 18px;
+    padding: 30px 20px;
+    text-align:center;
+    margin-bottom: 22px;
+  }
+  .quiz-tag{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    color:var(--purple-dark);
+    background: #ecdcf7;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  .quiz-word{
+    font-size: 28px;
+    font-weight:800;
+    color: var(--text);
+    word-break: break-word;
+  }
+  .choices{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .choice-btn{
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 2px solid #f0d5e0;
+    background:white;
+    font-size:15px;
+    font-weight:600;
+    text-align:left;
+    cursor:pointer;
+    color: var(--text);
+    transition: all 0.15s;
+  }
+  .choice-btn:active{ transform: scale(0.98); }
+  .choice-btn.correct{
+    background: #e4f7ec;
+    border-color: var(--correct);
+    color: #2e8b5f;
+  }
+  .choice-btn.wrong{
+    background: #fcebea;
+    border-color: var(--wrong);
+    color: #c0392b;
+  }
+  .choice-btn.disabled{
+    pointer-events:none;
+  }
+  .next-hint{
+    text-align:center;
+    font-size:12px;
+    color:#b394a5;
+    margin-top:14px;
+    min-height:16px;
+  }
+  /* RESULT SCREEN */
+  .result-score{
+    text-align:center;
+    padding: 20px 0 10px;
+  }
+  .result-score .big{
+    font-size:44px;
+    font-weight:900;
+    background: linear-gradient(135deg, var(--pink-dark), var(--purple));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .result-score .sub{
+    font-size:14px;
+    color:#a06b8a;
+    margin-top:4px;
+  }
+  .best-badge{
+    text-align:center;
+    font-size:12px;
+    font-weight:700;
+    color:#f0a500;
+    margin-top:6px;
+  }
+  .missed-list{
+    margin-top: 18px;
+  }
+  .missed-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding: 10px 14px;
+    background:#fdf1f6;
+    border-radius:12px;
+    margin-bottom:8px;
+    font-size:14px;
+  }
+  .missed-item .en{ font-weight:700; }
+  .missed-item .kr{ color:#8a7480; font-size:13px; }
+  .no-missed{
+    text-align:center;
+    color:#8a7480;
+    font-size:14px;
+    padding: 20px 0;
+  }
+  .btn-row{
+    display:flex;
+    gap:10px;
+    margin-top: 20px;
+  }
+  .btn-row button{
+    flex:1;
+    padding: 14px;
+    border-radius: 14px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    border:none;
+  }
+  .btn-secondary{
+    background: #f0e0ea;
+    color: var(--purple-dark);
+  }
+  .btn-primary{
+    background: linear-gradient(135deg, var(--pink-dark), var(--purple));
+    color:white;
+  }
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>📖 단어 테스트</h1>
+    <p>Words &amp; Expressions Review 13, 14회 · 총 65개</p>
+  </div>
+  <div class="content">
+
+    <!-- HOME SCREEN -->
+    <div id="homeScreen">
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="num" id="bestScoreDisplay">-</div>
+          <div class="label">최고 점수</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="wrongCountDisplay">0</div>
+          <div class="label">오답 단어 수</div>
+        </div>
+      </div>
+
+      <div class="section-title">범위 선택</div>
+      <div class="option-group" id="unitGroup">
+        <div class="option-chip selected" data-unit="all">전체 (65)</div>
+        <div class="option-chip" data-unit="13">13회 (32)</div>
+        <div class="option-chip" data-unit="14">14회 (33)</div>
+      </div>
+
+      <div class="section-title">유형 선택</div>
+      <div class="option-group" id="typeGroup">
+        <div class="option-chip selected" data-type="all">전체</div>
+        <div class="option-chip" data-type="word">단어만</div>
+        <div class="option-chip" data-type="phrase">숙어만</div>
+      </div>
+
+      <button class="start-btn" id="startBtn">테스트 시작하기</button>
+      <button class="retry-btn" id="retryBtn">🔁 오답노트 다시 풀기 (<span id="retryCount">0</span>개)</button>
+      <div class="word-count-note" id="poolCountNote"></div>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="quizScreen" class="hidden">
+      <div class="progress-wrap">
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+        <div class="progress-text" id="progressText">1 / 20</div>
+      </div>
+      <div class="quiz-card">
+        <div class="quiz-tag" id="quizTag">13회 · 단어</div>
+        <div class="quiz-word" id="quizWord">word</div>
+      </div>
+      <div class="choices" id="choicesContainer"></div>
+      <div class="next-hint" id="nextHint"></div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="resultScreen" class="hidden">
+      <div class="result-score">
+        <div class="big" id="resultScoreText">0/0</div>
+        <div class="sub" id="resultPercentText">정답률 0%</div>
+        <div class="best-badge hidden" id="newBestBadge">🏆 최고 기록 달성!</div>
+      </div>
+      <div class="section-title">틀린 단어</div>
+      <div class="missed-list" id="missedList"></div>
+      <div class="btn-row">
+        <button class="btn-secondary" id="homeBtn">홈으로</button>
+        <button class="btn-primary" id="retakeBtn">다시 풀기</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ===== 단어 데이터 (13, 14회) =====
+const VOCAB = [
+  // 13회
+  {id:1, en:"foggy", kr:"안개가 낀", unit:13, type:"word"},
+  {id:2, en:"jinx", kr:"징크스", unit:13, type:"word"},
+  {id:3, en:"shower", kr:"소나기", unit:13, type:"word"},
+  {id:4, en:"outbreak", kr:"발생", unit:13, type:"word"},
+  {id:5, en:"quarrel", kr:"말다툼을 하다", unit:13, type:"word"},
+  {id:6, en:"make up with", kr:"~와 화해하다", unit:13, type:"phrase"},
+  {id:7, en:"spare", kr:"할애하다[내어 주다]", unit:13, type:"word"},
+  {id:8, en:"be about to-v", kr:"막 ~하려고 하다", unit:13, type:"phrase"},
+  {id:9, en:"gathering", kr:"모임", unit:13, type:"word"},
+  {id:10, en:"heavy", kr:"심한", unit:13, type:"word"},
+  {id:11, en:"pity", kr:"유감스러운 일", unit:13, type:"word"},
+  {id:12, en:"speak up", kr:"더 크게 말하다", unit:13, type:"phrase"},
+  {id:13, en:"divide", kr:"나뉘다", unit:13, type:"word"},
+  {id:14, en:"typical", kr:"전형적인", unit:13, type:"word"},
+  {id:15, en:"with flying colors", kr:"의기양양하게, 우쭐대며", unit:13, type:"phrase"},
+  {id:16, en:"urgent", kr:"긴급한", unit:13, type:"word"},
+  {id:17, en:"preschool", kr:"유치원", unit:13, type:"word"},
+  {id:18, en:"throw up", kr:"토하다", unit:13, type:"phrase"},
+  {id:19, en:"exhausted", kr:"지친", unit:13, type:"word"},
+  {id:20, en:"scenery", kr:"경치", unit:13, type:"word"},
+  {id:21, en:"extraordinary", kr:"색다른", unit:13, type:"word"},
+  {id:22, en:"maintenance", kr:"유지", unit:13, type:"word"},
+  {id:23, en:"off duty", kr:"근무 중이 아닌", unit:13, type:"phrase"},
+  {id:24, en:"shelf", kr:"선반", unit:13, type:"word"},
+  {id:25, en:"appreciate", kr:"고마워하다", unit:13, type:"word"},
+  {id:26, en:"borrow", kr:"빌리다", unit:13, type:"word"},
+  {id:27, en:"almost", kr:"거의", unit:13, type:"word"},
+  {id:28, en:"condition", kr:"(건강) 상태", unit:13, type:"word"},
+  {id:29, en:"depend on", kr:"~에 달려 있다", unit:13, type:"phrase"},
+  {id:30, en:"on foot", kr:"걸어서, 도보로", unit:13, type:"phrase"},
+  {id:31, en:"crack", kr:"금, 틈", unit:13, type:"word"},
+  {id:32, en:"knowledge", kr:"지식", unit:13, type:"word"},
+  // 14회
+  {id:33, en:"square", kr:"네모", unit:14, type:"word"},
+  {id:34, en:"without", kr:"~없이", unit:14, type:"word"},
+  {id:35, en:"festival", kr:"축제", unit:14, type:"word"},
+  {id:36, en:"early", kr:"이른", unit:14, type:"word"},
+  {id:37, en:"look like", kr:"~인 것처럼 보이다", unit:14, type:"phrase"},
+  {id:38, en:"fill out", kr:"작성하다", unit:14, type:"phrase"},
+  {id:39, en:"begin", kr:"시작하다", unit:14, type:"word"},
+  {id:40, en:"select", kr:"선출하다", unit:14, type:"word"},
+  {id:41, en:"relieved", kr:"안도하는", unit:14, type:"word"},
+  {id:42, en:"nervous", kr:"불안해하는", unit:14, type:"word"},
+  {id:43, en:"confident", kr:"자신감 있는", unit:14, type:"word"},
+  {id:44, en:"tight", kr:"꽉 조이는", unit:14, type:"word"},
+  {id:45, en:"throw a party", kr:"파티를 열다", unit:14, type:"phrase"},
+  {id:46, en:"common", kr:"흔한", unit:14, type:"word"},
+  {id:47, en:"balance", kr:"균형", unit:14, type:"word"},
+  {id:48, en:"chilly", kr:"쌀쌀한", unit:14, type:"word"},
+  {id:49, en:"wool", kr:"양모", unit:14, type:"word"},
+  {id:50, en:"a couple of", kr:"두서너 개의", unit:14, type:"phrase"},
+  {id:51, en:"earth", kr:"지구", unit:14, type:"word"},
+  {id:52, en:"pollution", kr:"오염", unit:14, type:"word"},
+  {id:53, en:"reusable", kr:"재사용 할 수 있는", unit:14, type:"word"},
+  {id:54, en:"important", kr:"중요한", unit:14, type:"word"},
+  {id:55, en:"electronics", kr:"전자 장치", unit:14, type:"word"},
+  {id:56, en:"purchase", kr:"구입하다", unit:14, type:"word"},
+  {id:57, en:"sunburned", kr:"햇볕에 탄", unit:14, type:"word"},
+  {id:58, en:"sunblock", kr:"자외선 차단제", unit:14, type:"word"},
+  {id:59, en:"soon", kr:"곧", unit:14, type:"word"},
+  {id:60, en:"overcome", kr:"극복하다", unit:14, type:"word"},
+  {id:61, en:"sleep", kr:"자다", unit:14, type:"word"},
+  {id:62, en:"counselor", kr:"(학교의) 상담 교사", unit:14, type:"word"},
+  {id:63, en:"nurse", kr:"간호사", unit:14, type:"word"},
+  {id:64, en:"ankle", kr:"발목", unit:14, type:"word"},
+  {id:65, en:"injury", kr:"부상", unit:14, type:"word"},
+];
+
+// ===== 상태 =====
+let selectedUnit = "all";
+let selectedType = "all";
+let currentQuiz = [];
+let currentIndex = 0;
+let correctCount = 0;
+let missedWords = [];
+let isRetryMode = false;
+let answering = false;
+
+const STORAGE_WRONG_KEY = "vocab1314_wrongIds";
+const STORAGE_BEST_KEY = "vocab1314_bestScore";
+
+// ===== 유틸 =====
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function getWrongIds(){
+  try{
+    return JSON.parse(localStorage.getItem(STORAGE_WRONG_KEY)) || [];
+  }catch(e){ return []; }
+}
+function setWrongIds(ids){
+  localStorage.setItem(STORAGE_WRONG_KEY, JSON.stringify(ids));
+}
+function getBestScore(){
+  try{
+    return JSON.parse(localStorage.getItem(STORAGE_BEST_KEY)) || null;
+  }catch(e){ return null; }
+}
+function setBestScore(obj){
+  localStorage.setItem(STORAGE_BEST_KEY, JSON.stringify(obj));
+}
+
+function getFilteredPool(){
+  return VOCAB.filter(w=>{
+    const unitOk = selectedUnit === "all" || w.unit === Number(selectedUnit);
+    const typeOk = selectedType === "all" || w.type === selectedType;
+    return unitOk && typeOk;
+  });
+}
+
+// ===== 화면 갱신 =====
+function refreshHome(){
+  const best = getBestScore();
+  document.getElementById("bestScoreDisplay").textContent = best ? `${best.correct}/${best.total}` : "-";
+  const wrongIds = getWrongIds();
+  document.getElementById("wrongCountDisplay").textContent = wrongIds.length;
+  document.getElementById("retryCount").textContent = wrongIds.length;
+  document.getElementById("retryBtn").disabled = wrongIds.length === 0;
+
+  const pool = getFilteredPool();
+  document.getElementById("poolCountNote").textContent = `선택한 범위: ${pool.length}개 단어`;
+}
+
+document.getElementById("unitGroup").addEventListener("click", (e)=>{
+  const chip = e.target.closest(".option-chip");
+  if(!chip) return;
+  document.querySelectorAll("#unitGroup .option-chip").forEach(c=>c.classList.remove("selected"));
+  chip.classList.add("selected");
+  selectedUnit = chip.dataset.unit;
+  refreshHome();
+});
+document.getElementById("typeGroup").addEventListener("click", (e)=>{
+  const chip = e.target.closest(".option-chip");
+  if(!chip) return;
+  document.querySelectorAll("#typeGroup .option-chip").forEach(c=>c.classList.remove("selected"));
+  chip.classList.add("selected");
+  selectedType = chip.dataset.type;
+  refreshHome();
+});
+
+document.getElementById("startBtn").addEventListener("click", ()=>{
+  const pool = getFilteredPool();
+  if(pool.length < 4){
+    alert("선택한 범위에 단어가 너무 적어요. (최소 4개 필요)");
+    return;
+  }
+  isRetryMode = false;
+  startQuiz(pool);
+});
+
+document.getElementById("retryBtn").addEventListener("click", ()=>{
+  const wrongIds = getWrongIds();
+  const pool = VOCAB.filter(w=>wrongIds.includes(w.id));
+  if(pool.length < 4){
+    alert("오답노트 단어가 4개 이상일 때 재도전할 수 있어요. (부족하면 전체 단어 중 채워서 출제할게요)");
+    // fill up with random extra words if not enough
+    const extra = shuffle(VOCAB.filter(w=>!wrongIds.includes(w.id))).slice(0, 4 - pool.length);
+    pool.push(...extra);
+  }
+  isRetryMode = true;
+  startQuiz(pool);
+});
+
+function startQuiz(pool){
+  currentQuiz = shuffle(pool);
+  currentIndex = 0;
+  correctCount = 0;
+  missedWords = [];
+  document.getElementById("homeScreen").classList.add("hidden");
+  document.getElementById("resultScreen").classList.add("hidden");
+  document.getElementById("quizScreen").classList.remove("hidden");
+  showQuestion();
+}
+
+function showQuestion(){
+  answering = true;
+  const q = currentQuiz[currentIndex];
+  document.getElementById("progressText").textContent = `${currentIndex+1} / ${currentQuiz.length}`;
+  document.getElementById("progressFill").style.width = `${((currentIndex)/currentQuiz.length)*100}%`;
+  document.getElementById("quizTag").textContent = `${q.unit}회 · ${q.type === "word" ? "단어" : "숙어"}`;
+  document.getElementById("quizWord").textContent = q.en;
+  document.getElementById("nextHint").textContent = "";
+
+  // 보기 4개 만들기: 정답 1 + 오답 3 (같은 pool에서, 부족하면 전체 VOCAB에서 채움)
+  let distractorSource = VOCAB.filter(w=>w.id !== q.id);
+  let wrongOptions = shuffle(distractorSource).slice(0,3);
+  let options = shuffle([q, ...wrongOptions]);
+
+  const container = document.getElementById("choicesContainer");
+  container.innerHTML = "";
+  options.forEach(opt=>{
+    const btn = document.createElement("button");
+    btn.className = "choice-btn";
+    btn.textContent = opt.kr;
+    btn.addEventListener("click", ()=> handleAnswer(btn, opt, q));
+    container.appendChild(btn);
+  });
+}
+
+function handleAnswer(btn, chosen, correctItem){
+  if(!answering) return;
+  answering = false;
+  const isCorrect = chosen.id === correctItem.id;
+
+  document.querySelectorAll(".choice-btn").forEach(b=>{
+    b.classList.add("disabled");
+    const bWord = correctItem.kr;
+    if(b.textContent === bWord){
+      b.classList.add("correct");
+    }
+  });
+  if(!isCorrect){
+    btn.classList.add("wrong");
+  }
+
+  if(isCorrect){
+    correctCount++;
+    document.getElementById("nextHint").textContent = "✅ 정답이에요!";
+  }else{
+    missedWords.push(correctItem);
+    document.getElementById("nextHint").textContent = `❌ 정답: ${correctItem.kr}`;
+  }
+
+  setTimeout(()=>{
+    currentIndex++;
+    if(currentIndex < currentQuiz.length){
+      showQuestion();
+    }else{
+      finishQuiz();
+    }
+  }, 900);
+}
+
+function finishQuiz(){
+  document.getElementById("progressFill").style.width = "100%";
+  document.getElementById("quizScreen").classList.add("hidden");
+  document.getElementById("resultScreen").classList.remove("hidden");
+
+  const total = currentQuiz.length;
+  document.getElementById("resultScoreText").textContent = `${correctCount}/${total}`;
+  const pct = Math.round((correctCount/total)*100);
+  document.getElementById("resultPercentText").textContent = `정답률 ${pct}%`;
+
+  // 오답노트 갱신
+  let wrongIds = getWrongIds();
+  const missedIds = missedWords.map(w=>w.id);
+  const answeredIds = currentQuiz.map(w=>w.id);
+
+  if(isRetryMode){
+    // 재도전 시: 이번에 맞춘 건 오답노트에서 제거, 틀린 건 유지
+    wrongIds = wrongIds.filter(id => !answeredIds.includes(id) || missedIds.includes(id));
+    missedIds.forEach(id=>{ if(!wrongIds.includes(id)) wrongIds.push(id); });
+  }else{
+    // 일반 모드: 틀린 것만 추가
+    missedIds.forEach(id=>{ if(!wrongIds.includes(id)) wrongIds.push(id); });
+  }
+  setWrongIds(wrongIds);
+
+  // 최고 점수 갱신 (전체 65개 기준 테스트에서만 기록, 그 외는 비교 스킵해도 되지만 pct 기준으로 통일)
+  const best = getBestScore();
+  const newBestBadge = document.getElementById("newBestBadge");
+  newBestBadge.classList.add("hidden");
+  if(!isRetryMode){
+    if(!best || pct > best.pct){
+      setBestScore({correct: correctCount, total: total, pct: pct});
+      newBestBadge.classList.remove("hidden");
+    }
+  }
+
+  // 틀린 단어 목록
+  const missedList = document.getElementById("missedList");
+  missedList.innerHTML = "";
+  if(missedWords.length === 0){
+    missedList.innerHTML = `<div class="no-missed">🎉 틀린 단어가 없어요! 완벽해요!</div>`;
+  }else{
+    missedWords.forEach(w=>{
+      const div = document.createElement("div");
+      div.className = "missed-item";
+      div.innerHTML = `<span class="en">${w.en}</span><span class="kr">${w.kr}</span>`;
+      missedList.appendChild(div);
+    });
+  }
+}
+
+document.getElementById("homeBtn").addEventListener("click", ()=>{
+  document.getElementById("resultScreen").classList.add("hidden");
+  document.getElementById("homeScreen").classList.remove("hidden");
+  refreshHome();
+});
+
+document.getElementById("retakeBtn").addEventListener("click", ()=>{
+  document.getElementById("resultScreen").classList.add("hidden");
+  const pool = isRetryMode ? currentQuiz : getFilteredPool();
+  startQuiz(pool);
+});
+
+// 초기화
+refreshHome();
+</script>
+</body>
+</html>
