@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Passport English Practice</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f3f6fa;color:#18324a}
+.wrap{max-width:760px;margin:auto;padding:18px}
+.card{background:#fff;border-radius:18px;padding:20px;margin-bottom:14px;box-shadow:0 5px 18px rgba(0,0,0,.08)}
+h1{margin:4px 0 5px;font-size:25px}.sub{color:#66798b;margin-bottom:16px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.step{padding:9px 4px;text-align:center;border-radius:9px;background:#e8edf3;font-size:12px;font-weight:700}
+.step.active{background:#18324a;color:white}.step.done{background:#dce8fb;color:#2457a6}
+.progress{height:9px;background:#e5ebf1;border-radius:10px;overflow:hidden}.bar{height:100%;background:#3568d4;width:0}
+.badge{display:inline-block;background:#edf3ff;color:#2859a6;padding:6px 10px;border-radius:20px;font-size:13px;font-weight:700;margin-bottom:9px}
+.qno{font-size:14px;color:#6b7d8d;margin:4px 0 7px}.question{font-size:27px;font-weight:800;margin:7px 0 18px}
+.instruction{font-size:14px;color:#647789;margin-bottom:12px}
+.options{display:grid;gap:9px}.option{width:100%;padding:14px;border:2px solid #dce4ec;border-radius:11px;background:white;text-align:left;font-size:17px;cursor:pointer}
+.option.selected{border-color:#3568d4;background:#eef4ff}.option.correct{border-color:#23935d;background:#eaf8f0}.option.wrong{border-color:#d34c4c;background:#fff0f0}
+input[type=text]{width:100%;padding:14px;border:2px solid #d9e2eb;border-radius:11px;font-size:18px;outline:none}
+input[type=text]:focus{border-color:#3568d4}
+.example{background:#f5f8fc;padding:12px;border-radius:10px;font-size:14px;margin:12px 0}
+.feedback{margin-top:13px;padding:12px;border-radius:10px;display:none}.good{background:#e7f7ed;color:#17643a}.bad{background:#fff0f0;color:#9d2929}
+.answer{font-weight:800;margin-top:5px}.btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+button{border:0;border-radius:11px;padding:12px 17px;font-weight:700;font-size:15px;cursor:pointer}.primary{background:#3568d4;color:white}.secondary{background:#e9eef5;color:#18324a}
+.score{text-align:center;font-size:24px;font-weight:800}.small{font-size:13px;color:#6c7c8a;line-height:1.5}
+.finish{text-align:center;display:none}.finish h2{font-size:28px}.bigscore{font-size:42px;font-weight:900;margin:10px}
+@media(max-width:520px){.steps{grid-template-columns:repeat(2,1fr)}.question{font-size:23px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+<h1>Passport English Practice</h1>
+<div class="sub">여권 개인정보 기록사항 4단계 연습</div>
+<div class="steps">
+<div id="s1" class="step active">1. 영→한</div>
+<div id="s2" class="step">2. 한→영 선택</div>
+<div id="s3" class="step">3. 영→한</div>
+<div id="s4" class="step">4. 한→영 직접</div>
+</div>
+<div class="progress"><div id="bar" class="bar"></div></div>
+</div>
+
+<div id="practice" class="card">
+<div id="badge" class="badge"></div>
+<div id="qno" class="qno"></div>
+<div id="question" class="question"></div>
+<div id="instruction" class="instruction"></div>
+<div id="answerArea"></div>
+<div class="btns">
+<button id="checkBtn" class="primary" onclick="check()">정답 확인</button>
+<button id="nextBtn" class="secondary" onclick="next()">다음 문제</button>
+</div>
+<div id="feedback" class="feedback"></div>
+</div>
+
+<div class="card"><div class="score" id="score">0 / 0</div>
+<div class="small" style="text-align:center">현재 단계의 정답 / 채점 문제</div></div>
+
+<div id="finish" class="card finish">
+<h2>4단계 연습 완료!</h2>
+<div class="bigscore" id="finalScore"></div>
+<p>모든 여권 기록사항을 영어로 연습했습니다.</p>
+<button class="primary" onclick="restart()">처음부터 다시 하기</button>
+</div>
+
+<div class="card small">
+<b>연습 항목</b>
+<ul>
+<li>Surname — 성</li><li>Given names — 이름</li><li>Nationality — 국적</li>
+<li>Date of birth — 생년월일</li><li>Sex — 성별</li><li>Passport No. — 여권번호</li>
+<li>Personal No. — 개인번호</li><li>Date of issue — 발급일</li>
+<li>Date of expiry — 기간만료일</li><li>Authority — 발행관청</li>
+<li>Signature of bearer — 소지인 서명</li><li>Name in Korean — 한글성명</li>
+</ul>
+</div>
+</div>
+
+<script>
+const data=[
+["성","Surname"],["이름","Given names"],["국적","Nationality"],["생년월일","Date of birth"],
+["성별","Sex"],["여권번호","Passport No."],["개인번호","Personal No."],
+["발급일","Date of issue"],["기간만료일","Date of expiry"],["발행관청","Authority"],
+["소지인 서명","Signature of bearer"],["한글성명","Name in Korean"]
+];
+
+const stages=[
+ {name:"영→한",desc:"영어 표현을 보고 알맞은 한국어 뜻을 고르세요.",type:"mc_en_ko"},
+ {name:"한→영 선택",desc:"한국어 표현을 보고 알맞은 영어 표현을 고르세요.",type:"mc_ko_en"},
+ {name:"영→한",desc:"영어 표현을 보고 한국어 뜻을 직접 입력하세요.",type:"write_en_ko"},
+ {name:"한→영 직접",desc:"한국어 표현을 보고 영어 표현을 직접 기록하세요.",type:"write_ko_en"}
+];
+
+let stage=0, i=0, selected="", checked=false, correct=0, attempts=0;
+
+function norm(s){return s.toLowerCase().replace(/[.,]/g,"").replace(/\s+/g," ").trim()}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function options(correctAnswer){
+ let others=data.map(x=>x[stage===0||stage===2?0:1]).filter(x=>x!==correctAnswer);
+ return shuffle([correctAnswer,...shuffle(others).slice(0,3)]);
+}
+function render(){
+ const d=data[i], st=stages[stage];
+ document.querySelectorAll(".step").forEach((x,n)=>{
+   x.className="step "+(n===stage?"active":n<stage?"done":"");
+ });
+ document.getElementById("badge").textContent=st.name;
+ document.getElementById("qno").textContent=`문제 ${i+1} / ${data.length}`;
+ document.getElementById("instruction").textContent=st.desc;
+ document.getElementById("feedback").style.display="none";
+ checked=false;selected="";
+ let q="",ans="";
+ if(st.type==="mc_en_ko"){q=d[1];ans=d[0]}
+ if(st.type==="mc_ko_en"){q=d[0];ans=d[1]}
+ if(st.type==="write_en_ko"){q=d[1];ans=d[0]}
+ if(st.type==="write_ko_en"){q=d[0];ans=d[1]}
+ document.getElementById("question").textContent=q;
+ if(st.type.startsWith("mc")){
+   document.getElementById("answerArea").innerHTML=
+    '<div class="options">'+options(ans).map(x=>`<button class="option" onclick="selectOption(this,'${x.replace(/'/g,"&#39;")}')">${x}</button>`).join("")+'</div>';
+ }else{
+   document.getElementById("answerArea").innerHTML='<input id="answer" type="text" placeholder="답을 입력하세요" autocomplete="off">';
+   document.getElementById("answer").addEventListener("keydown",e=>{if(e.key==="Enter")check()});
+ }
+ updateScore();
+}
+function selectOption(el,val){
+ if(checked)return;
+ document.querySelectorAll(".option").forEach(x=>x.classList.remove("selected"));
+ el.classList.add("selected");selected=val;
+}
+function check(){
+ if(checked)return;
+ const d=data[i],st=stages[stage];
+ const ans=(st.type==="mc_en_ko"||st.type==="write_en_ko")?d[0]:d[1];
+ let val=st.type.startsWith("mc")?selected:document.getElementById("answer").value;
+ if(!val){alert(st.type.startsWith("mc")?"답을 선택해주세요.":"답을 입력해주세요.");return}
+ checked=true;attempts++;
+ const ok=norm(val)===norm(ans);if(ok)correct++;
+ const f=document.getElementById("feedback");
+ f.className="feedback "+(ok?"good":"bad");f.style.display="block";
+ f.innerHTML=(ok?"정답입니다!":"다시 확인해 보세요.")+`<div class="answer">정답: ${ans}</div>`;
+ if(st.type.startsWith("mc")){
+   document.querySelectorAll(".option").forEach(b=>{
+     if(norm(b.textContent)===norm(ans))b.classList.add("correct");
+     else if(b.classList.contains("selected")&&!ok)b.classList.add("wrong");
+   });
+ }
+ updateScore();
+}
+function next(){
+ if(!checked){if(!confirm("아직 채점하지 않았습니다. 다음 문제로 이동할까요?"))return}
+ if(i<data.length-1){i++;render()}
+ else if(stage<3){stage++;i=0;correct=0;attempts=0;render()}
+ else{document.getElementById("practice").style.display="none";document.getElementById("finish").style.display="block";document.getElementById("finalScore").textContent=`${correct} / ${attempts}`}
+}
+function updateScore(){document.getElementById("score").textContent=`${correct} / ${attempts}`}
+function restart(){
+ stage=0;i=0;correct=0;attempts=0;
+ document.getElementById("practice").style.display="block";document.getElementById("finish").style.display="none";render();
+}
+render();
+</script>
+</body>
+</html>
