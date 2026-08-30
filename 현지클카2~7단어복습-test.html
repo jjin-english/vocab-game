@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>영어II Lesson 3 단어 테스트</title>
+<style>
+  :root{
+    --green:#5cb85c;
+    --green-dark:#4a9d4a;
+    --green-light:#eaf7ea;
+    --bg:#f5f6f5;
+    --card:#ffffff;
+    --text:#2b2f2b;
+    --sub:#7a827a;
+    --red:#e2534d;
+    --border:#e3e7e3;
+    --amber:#e0a53a;
+    --amber-light:#fdf3e2;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    background:var(--bg); color:var(--text);
+    min-height:100vh; display:flex; justify-content:center;
+  }
+  #app{width:100%; max-width:480px; min-height:100vh; background:var(--bg); display:flex; flex-direction:column;}
+  header{
+    background:linear-gradient(135deg,var(--green),var(--green-dark));
+    color:#fff; padding:22px 20px 18px; position:relative;
+  }
+  header h1{margin:0; font-size:19px; font-weight:800;}
+  header p{margin:4px 0 0; font-size:12.5px; opacity:.92;}
+  .backbtn{
+    position:absolute; left:14px; top:20px; background:rgba(255,255,255,.22);
+    border:none; color:#fff; width:32px; height:32px; border-radius:50%;
+    font-size:16px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  main{flex:1; padding:16px; padding-bottom:36px;}
+  .hidden{display:none !important;}
+
+  /* RESUME BANNER */
+  .resume-banner{
+    background:var(--amber-light); border:1.5px solid var(--amber); border-radius:14px;
+    padding:14px 16px; margin-bottom:16px;
+  }
+  .resume-banner .rtitle{font-weight:800; font-size:14.5px; color:#8a6416; margin-bottom:3px;}
+  .resume-banner .rdetail{font-size:12.5px; color:#8a6416; opacity:.9; margin-bottom:10px;}
+  .resume-btns{display:flex; gap:8px;}
+  .resume-btns button{
+    flex:1; border-radius:9px; padding:10px; font-size:13px; font-weight:700; cursor:pointer; border:none;
+  }
+  .resume-go{background:var(--amber); color:#fff;}
+  .resume-discard{background:#fff; color:#8a6416; border:1px solid var(--amber) !important;}
+
+  /* HOME */
+  .part-card{
+    background:var(--card); border-radius:16px; padding:18px; margin-bottom:14px;
+    box-shadow:0 1px 4px rgba(0,0,0,.06); border:1px solid var(--border);
+  }
+  .part-card h2{margin:0 0 3px; font-size:16px;}
+  .part-card .sub{color:var(--sub); font-size:12.5px; margin-bottom:12px;}
+  .modebtns{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .modebtn{
+    background:var(--green-light); border:1.5px solid transparent; border-radius:10px;
+    padding:12px 8px; text-align:center; cursor:pointer; font-weight:700; color:var(--green-dark);
+    font-size:13.5px; display:flex; flex-direction:column; gap:2px;
+  }
+  .modebtn .score{font-size:11px; font-weight:500; color:var(--sub);}
+  .modebtn:active{background:#dcf1dc;}
+  .wrongbtn{
+    width:100%; margin-top:10px; background:#fff; border:1.5px solid var(--red);
+    color:var(--red); font-weight:700; padding:11px; border-radius:10px; font-size:13.5px; cursor:pointer;
+  }
+  .wrongbtn:disabled{opacity:.4; border-color:var(--border); color:var(--sub);}
+  .section-title{font-size:13px; font-weight:800; color:var(--sub); margin:18px 0 8px 4px; letter-spacing:.3px;}
+
+  /* QUIZ */
+  .progress-wrap{padding:14px 16px 0;}
+  .progress-bar{height:7px; background:var(--border); border-radius:4px; overflow:hidden;}
+  .progress-fill{height:100%; background:var(--green); transition:width .25s;}
+  .progress-info{display:flex; justify-content:space-between; font-size:12px; color:var(--sub); margin-top:6px;}
+  .quiz-card{
+    background:var(--card); border-radius:18px; padding:26px 20px; margin:16px; text-align:center;
+    box-shadow:0 1px 6px rgba(0,0,0,.06); border:1px solid var(--border);
+  }
+  .qlabel{font-size:11.5px; color:var(--sub); font-weight:700; letter-spacing:.5px; margin-bottom:10px;}
+  #qword{font-size:26px; font-weight:800; word-break:break-word;}
+  .choices{padding:0 16px; display:flex; flex-direction:column; gap:10px;}
+  .choice{
+    background:var(--card); border:1.5px solid var(--border); border-radius:12px;
+    padding:14px 16px; font-size:15.5px; text-align:left; cursor:pointer; font-weight:600;
+    width:100%; font-family:inherit; color:var(--text);
+  }
+  .choice.correct{background:var(--green-light); border-color:var(--green); color:var(--green-dark);}
+  .choice.wrong{background:#fdecea; border-color:var(--red); color:var(--red);}
+  .choice.dim{opacity:.5;}
+  .nextwrap{padding:18px 16px 0;}
+  .nextbtn{
+    width:100%; background:var(--green); color:#fff; border:none; border-radius:12px;
+    padding:14px; font-size:15px; font-weight:800; cursor:pointer; font-family:inherit;
+  }
+  .nextbtn:disabled{background:#c8dcc8; cursor:default;}
+
+  /* RESULTS */
+  .result-hero{text-align:center; padding:20px 0 8px;}
+  .result-hero .big{font-size:42px; font-weight:900; color:var(--green-dark);}
+  .result-hero .lbl{color:var(--sub); font-size:13px; margin-top:2px;}
+  .missed-list{background:var(--card); border-radius:14px; border:1px solid var(--border); overflow:hidden; margin:14px 0;}
+  .missed-item{padding:12px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; font-size:14px; gap:10px;}
+  .missed-item:last-child{border-bottom:none;}
+  .missed-item .en{font-weight:700; white-space:nowrap;}
+  .missed-item .kr{color:var(--sub); text-align:right;}
+  .empty-missed{padding:24px; text-align:center; color:var(--sub); font-size:14px;}
+  .resultbtns{display:flex; flex-direction:column; gap:10px; margin-top:6px;}
+  .btn-primary{background:var(--green); color:#fff; border:none; border-radius:12px; padding:14px; font-weight:800; font-size:15px; cursor:pointer; font-family:inherit;}
+  .btn-secondary{background:#fff; color:var(--green-dark); border:1.5px solid var(--green); border-radius:12px; padding:14px; font-weight:700; font-size:14.5px; cursor:pointer; font-family:inherit;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <button class="backbtn hidden" id="backBtn" type="button">‹</button>
+    <h1 id="headerTitle">영어II 천재 Lesson 3</h1>
+    <p id="headerSub">2~4구간 · 5~7구간 단어 테스트</p>
+  </header>
+
+  <main>
+
+    <!-- HOME SCREEN -->
+    <section id="homeScreen">
+
+      <div class="resume-banner hidden" id="resumeBanner">
+        <div class="rtitle">이어서 풀 수 있는 테스트가 있어요</div>
+        <div class="rdetail" id="resumeDetail"></div>
+        <div class="resume-btns">
+          <button type="button" class="resume-go" id="resumeGoBtn">이어하기</button>
+          <button type="button" class="resume-discard" id="resumeDiscardBtn">처음부터</button>
+        </div>
+      </div>
+
+      <div class="section-title">파트 1 · 2~4구간 (30단어)</div>
+      <div class="part-card">
+        <h2>Part 1</h2>
+        <div class="sub">astonishing ~ surrounding</div>
+        <div class="modebtns">
+          <div class="modebtn" data-part="1" data-mode="enkr" role="button">영→한<span class="score" id="score-1-enkr">최고점 -</span></div>
+          <div class="modebtn" data-part="1" data-mode="kren" role="button">한→영<span class="score" id="score-1-kren">최고점 -</span></div>
+        </div>
+        <button type="button" class="wrongbtn" id="wrongBtn-1">틀린 단어만 다시풀기 (<span id="wrongCount-1">0</span>개)</button>
+      </div>
+
+      <div class="section-title">파트 2 · 5~7구간 (30단어)</div>
+      <div class="part-card">
+        <h2>Part 2</h2>
+        <div class="sub">defense ~ rapid</div>
+        <div class="modebtns">
+          <div class="modebtn" data-part="2" data-mode="enkr" role="button">영→한<span class="score" id="score-2-enkr">최고점 -</span></div>
+          <div class="modebtn" data-part="2" data-mode="kren" role="button">한→영<span class="score" id="score-2-kren">최고점 -</span></div>
+        </div>
+        <button type="button" class="wrongbtn" id="wrongBtn-2">틀린 단어만 다시풀기 (<span id="wrongCount-2">0</span>개)</button>
+      </div>
+    </section>
+
+    <!-- QUIZ SCREEN -->
+    <section id="quizScreen" class="hidden">
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+        <div class="progress-info">
+          <span id="progressText">1 / 30</span>
+          <span id="scoreText">맞은 개수: 0</span>
+        </div>
+      </div>
+      <div class="quiz-card">
+        <div class="qlabel" id="qlabel">이 단어의 뜻은?</div>
+        <div id="qword">word</div>
+      </div>
+      <div class="choices" id="choicesWrap"></div>
+      <div class="nextwrap">
+        <button type="button" class="nextbtn" id="nextBtn" disabled>다음</button>
+      </div>
+    </section>
+
+    <!-- RESULT SCREEN -->
+    <section id="resultScreen" class="hidden">
+      <div class="result-hero">
+        <div class="big" id="resultScore">0 / 30</div>
+        <div class="lbl" id="resultLabel">수고했어요!</div>
+      </div>
+      <div class="section-title" style="margin-left:0;">틀린 단어</div>
+      <div class="missed-list" id="missedList"></div>
+      <div class="resultbtns">
+        <button type="button" class="btn-primary" id="retryMissedBtn">틀린 단어만 다시풀기</button>
+        <button type="button" class="btn-secondary" id="retryAllBtn">전체 다시풀기</button>
+        <button type="button" class="btn-secondary" id="homeBtn">홈으로</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- storage with in-memory fallback ---------- */
+  var memStore = {};
+  var storageWorks = true;
+  try {
+    window.localStorage.setItem("__t__","1");
+    window.localStorage.removeItem("__t__");
+  } catch(e){ storageWorks = false; }
+
+  function stGet(key){
+    if(storageWorks){
+      try { return window.localStorage.getItem(key); } catch(e){ return memStore[key] !== undefined ? memStore[key] : null; }
+    }
+    return memStore[key] !== undefined ? memStore[key] : null;
+  }
+  function stSet(key,val){
+    if(storageWorks){
+      try { window.localStorage.setItem(key,val); return; } catch(e){ /* fall through */ }
+    }
+    memStore[key] = val;
+  }
+  function stRemove(key){
+    if(storageWorks){
+      try { window.localStorage.removeItem(key); return; } catch(e){ /* fall through */ }
+    }
+    delete memStore[key];
+  }
+
+  /* ---------- vocabulary data ---------- */
+  var PART1 = [
+    ["astonishing","놀라운"],["desert","사막; 버리다"],["manage","관리하다, 해내다"],
+    ["apparently","겉보기에, 듣자 하니"],["obtain","얻다, 획득하다"],["moisture","수분, 습기"],
+    ["fascinating","매혹적인"],["leap","뛰어오르다, 도약"],["cluster","무리, 송이"],
+    ["pregnant","임신한"],["inflatable","공기를 넣어 부풀리는"],["pouch","주머니"],
+    ["fertilize","수정시키다, 비옥하게 하다"],["incredible","믿을 수 없는"],["hatch","부화하다"],
+    ["release","풀어주다, 방출하다"],["truly","진정으로"],["wonder","궁금해하다, 경이"],
+    ["aquarium","수족관"],["octopus","문어"],["alter","바꾸다, 변경하다"],
+    ["pattern","무늬, 패턴"],["appearance","외모, 모습"],["prey","먹이"],
+    ["strategy","전략"],["chameleon","카멜레온"],["deliberately","고의로, 의도적으로"],
+    ["shift","이동하다, 변화"],["blend","섞다, 혼합하다"],["surrounding","주변의, 둘러싼"]
+  ];
+
+  var PART2 = [
+    ["defense","방어"],["mechanism","메커니즘, 기제"],["leak","새다, 누출"],
+    ["poison","독"],["predator","포식자"],["reputation","평판, 명성"],
+    ["conserve","보존하다, 아끼다"],["migrate","이주하다"],["flock","떼, 무리(새 떼)"],
+    ["develop","발달하다, 개발하다"],["variety","다양성, 종류"],["spread","퍼지다, 확산되다"],
+    ["eucalyptus","유칼립투스"],["recover","회복하다"],["sweep","쓸다, 청소하다"],
+    ["habitat","서식지"],["intense","강렬한"],["protective","보호하는"],
+    ["shell","껍질, 조개껍데기"],["scatter","흩뿌리다, 흩어지다"],["burnt","탄, 그을린"],
+    ["compete","경쟁하다"],["nutrient","영양소"],["competitor","경쟁자"],
+    ["clear","분명한, 치우다"],["utilize","활용하다"],["ash","재"],
+    ["resource","자원"],["fuel","연료"],["rapid","빠른, 급속한"]
+  ];
+
+  var PARTS = { "1": PART1, "2": PART2 };
+  var SESSION_KEY = "l3_session_v2";
+
+  /* ---------- helpers ---------- */
+  function shuffle(arr){
+    var a = arr.slice();
+    for(var i=a.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var tmp=a[i]; a[i]=a[j]; a[j]=tmp;
+    }
+    return a;
+  }
+
+  function lookupPair(part, enWord){
+    var pool = PARTS[part];
+    if(!pool) return null;
+    for(var i=0;i<pool.length;i++){
+      if(pool[i][0] === enWord) return pool[i];
+    }
+    return null;
+  }
+
+  function wrongKey(part){ return "l3_wrong_p"+part; }
+  function scoreKey(part,mode){ return "l3_best_p"+part+"_"+mode; }
+
+  function getWrongSet(part){
+    var raw = stGet(wrongKey(part));
+    if(!raw) return [];
+    try {
+      var parsed = JSON.parse(raw);
+      if(!Array.isArray(parsed)) return [];
+      return parsed;
+    } catch(e){ return []; }
+  }
+  function saveWrongSet(part,list){
+    stSet(wrongKey(part), JSON.stringify(list));
+  }
+  function addWrong(part,word){
+    var list = getWrongSet(part);
+    if(list.indexOf(word) === -1){ list.push(word); saveWrongSet(part,list); }
+  }
+  function removeWrong(part,word){
+    var list = getWrongSet(part);
+    var idx = list.indexOf(word);
+    if(idx !== -1){ list.splice(idx,1); saveWrongSet(part,list); }
+  }
+
+  function getBest(part,mode){
+    var v = stGet(scoreKey(part,mode));
+    return v ? v : null;
+  }
+  function setBest(part,mode,score,total){
+    var cur = getBest(part,mode);
+    var curBest = -1;
+    if(cur){
+      var m = cur.split("/");
+      curBest = parseInt(m[0],10);
+      if(isNaN(curBest)) curBest = -1;
+    }
+    if(score > curBest){
+      stSet(scoreKey(part,mode), score+"/"+total);
+    }
+  }
+
+  /* ---------- session (resume) persistence ---------- */
+  function saveSession(){
+    try{
+      var wordKeys = [];
+      for(var i=0;i<state.words.length;i++) wordKeys.push(state.words[i][0]);
+      var missedKeys = [];
+      for(var j=0;j<state.missed.length;j++) missedKeys.push(state.missed[j][0]);
+      var obj = {
+        part: state.part, mode: state.mode, retryMode: !!state.retryMode,
+        wordKeys: wordKeys, idx: state.idx, correctCount: state.correctCount,
+        missedKeys: missedKeys, updatedAt: Date.now()
+      };
+      stSet(SESSION_KEY, JSON.stringify(obj));
+    } catch(e){ /* never let session save break the quiz */ }
+  }
+  function loadSession(){
+    var raw = stGet(SESSION_KEY);
+    if(!raw) return null;
+    try {
+      var obj = JSON.parse(raw);
+      if(!obj || !obj.part || !obj.mode || !Array.isArray(obj.wordKeys)) return null;
+      if(typeof obj.idx !== "number" || obj.idx < 0 || obj.idx >= obj.wordKeys.length) return null;
+      return obj;
+    } catch(e){ return null; }
+  }
+  function clearSession(){ stRemove(SESSION_KEY); }
+
+  /* ---------- state ---------- */
+  var state = {
+    part:null, mode:null, words:[], idx:0, correctCount:0,
+    missed:[], answered:false, retryMode:false
+  };
+
+  /* ---------- DOM refs ---------- */
+  var homeScreen = document.getElementById("homeScreen");
+  var quizScreen = document.getElementById("quizScreen");
+  var resultScreen = document.getElementById("resultScreen");
+  var backBtn = document.getElementById("backBtn");
+  var headerTitle = document.getElementById("headerTitle");
+  var headerSub = document.getElementById("headerSub");
+
+  var resumeBanner = document.getElementById("resumeBanner");
+  var resumeDetail = document.getElementById("resumeDetail");
+  var resumeGoBtn = document.getElementById("resumeGoBtn");
+  var resumeDiscardBtn = document.getElementById("resumeDiscardBtn");
+
+  var progressFill = document.getElementById("progressFill");
+  var progressText = document.getElementById("progressText");
+  var scoreText = document.getElementById("scoreText");
+  var qlabel = document.getElementById("qlabel");
+  var qword = document.getElementById("qword");
+  var choicesWrap = document.getElementById("choicesWrap");
+  var nextBtn = document.getElementById("nextBtn");
+
+  var resultScore = document.getElementById("resultScore");
+  var resultLabel = document.getElementById("resultLabel");
+  var missedList = document.getElementById("missedList");
+  var retryMissedBtn = document.getElementById("retryMissedBtn");
+  var retryAllBtn = document.getElementById("retryAllBtn");
+  var homeBtnEl = document.getElementById("homeBtn");
+
+  function partLabel(part){ return "Part " + part; }
+  function modeLabel(mode){ return mode === "enkr" ? "영→한" : "한→영"; }
+
+  function showScreen(name){
+    homeScreen.classList.add("hidden");
+    quizScreen.classList.add("hidden");
+    resultScreen.classList.add("hidden");
+    backBtn.classList.add("hidden");
+    if(name === "home"){
+      homeScreen.classList.remove("hidden");
+      headerTitle.textContent = "영어II 천재 Lesson 3";
+      headerSub.textContent = "2~4구간 · 5~7구간 단어 테스트";
+      refreshHome();
+    } else if(name === "quiz"){
+      quizScreen.classList.remove("hidden");
+      backBtn.classList.remove("hidden");
+    } else if(name === "result"){
+      resultScreen.classList.remove("hidden");
+      backBtn.classList.remove("hidden");
+    }
+  }
+
+  function refreshHome(){
+    ["1","2"].forEach(function(part){
+      ["enkr","kren"].forEach(function(mode){
+        var best = getBest(part,mode);
+        document.getElementById("score-"+part+"-"+mode).textContent = best ? ("최고점 "+best) : "최고점 -";
+      });
+      var wc = getWrongSet(part).length;
+      document.getElementById("wrongCount-"+part).textContent = wc;
+      var wb = document.getElementById("wrongBtn-"+part);
+      wb.disabled = wc === 0;
+    });
+
+    var session = loadSession();
+    if(session){
+      resumeBanner.classList.remove("hidden");
+      var doneCount = session.idx;
+      var total = session.wordKeys.length;
+      var typeLabel = session.retryMode ? "틀린 단어 다시풀기" : modeLabel(session.mode);
+      resumeDetail.textContent = partLabel(session.part) + " · " + typeLabel + " · " + doneCount + "/" + total + "문제까지 진행됨";
+    } else {
+      resumeBanner.classList.add("hidden");
+    }
+  }
+
+  /* ---------- quiz building ---------- */
+  function startQuiz(part, mode, wordsOverride, retryFlag){
+    var base = wordsOverride ? wordsOverride : PARTS[part];
+    state.part = part;
+    state.mode = mode;
+    state.words = shuffle(base);
+    state.idx = 0;
+    state.correctCount = 0;
+    state.missed = [];
+    state.retryMode = !!retryFlag;
+    headerTitle.textContent = "Part " + part + (mode === "enkr" ? " · 영→한" : " · 한→영");
+    headerSub.textContent = state.retryMode ? "틀린 단어 다시풀기" : "무작위 순서로 출제됩니다";
+    saveSession();
+    showScreen("quiz");
+    renderQuestion();
+  }
+
+  function resumeQuiz(){
+    var session = loadSession();
+    if(!session) return;
+    var words = [];
+    for(var i=0;i<session.wordKeys.length;i++){
+      var pair = lookupPair(session.part, session.wordKeys[i]);
+      if(pair) words.push(pair);
+    }
+    var missed = [];
+    for(var k=0;k<session.missedKeys.length;k++){
+      var mp = lookupPair(session.part, session.missedKeys[k]);
+      if(mp) missed.push(mp);
+    }
+    if(words.length === 0 || session.idx >= words.length){
+      clearSession();
+      refreshHome();
+      return;
+    }
+    state.part = session.part;
+    state.mode = session.mode;
+    state.words = words;
+    state.idx = session.idx;
+    state.correctCount = session.correctCount || 0;
+    state.missed = missed;
+    state.retryMode = !!session.retryMode;
+    headerTitle.textContent = "Part " + state.part + (state.mode === "enkr" ? " · 영→한" : " · 한→영");
+    headerSub.textContent = state.retryMode ? "틀린 단어 다시풀기 (이어하기)" : "이어서 진행합니다";
+    showScreen("quiz");
+    renderQuestion();
+  }
+
+  function buildChoices(correctPair){
+    var pool = PARTS[state.part];
+    var others = pool.filter(function(p){ return p[0] !== correctPair[0]; });
+    others = shuffle(others).slice(0,3);
+    var options = others.concat([correctPair]);
+    options = shuffle(options);
+    return options;
+  }
+
+  function renderQuestion(){
+    state.answered = false;
+    nextBtn.disabled = true;
+    var total = state.words.length;
+    var pair = state.words[state.idx];
+
+    progressFill.style.width = Math.round((state.idx/total)*100) + "%";
+    progressText.textContent = (state.idx+1) + " / " + total;
+    scoreText.textContent = "맞은 개수: " + state.correctCount;
+
+    var isEnKr = state.mode === "enkr";
+    qlabel.textContent = isEnKr ? "이 단어의 뜻은?" : "이 뜻에 맞는 단어는?";
+    qword.textContent = isEnKr ? pair[0] : pair[1];
+
+    var options = buildChoices(pair);
+    choicesWrap.innerHTML = "";
+    options.forEach(function(opt){
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "choice";
+      btn.textContent = isEnKr ? opt[1] : opt[0];
+      btn.addEventListener("click", function(){ selectChoice(btn, opt, pair, options); });
+      choicesWrap.appendChild(btn);
+    });
+  }
+
+  function selectChoice(btn, opt, correctPair, allOptions){
+    if(state.answered) return;
+    state.answered = true;
+
+    var isCorrect = opt[0] === correctPair[0];
+    var allBtns = choicesWrap.querySelectorAll(".choice");
+    allBtns.forEach(function(b, i){
+      var o = allOptions[i];
+      if(o[0] === correctPair[0]){
+        b.classList.add("correct");
+      } else {
+        b.classList.add("dim");
+      }
+    });
+    if(!isCorrect){
+      btn.classList.remove("dim");
+      btn.classList.add("wrong");
+    }
+
+    if(isCorrect){
+      state.correctCount++;
+      if(state.retryMode) removeWrong(state.part, correctPair[0]);
+    } else {
+      state.missed.push(correctPair);
+      addWrong(state.part, correctPair[0]);
+    }
+    scoreText.textContent = "맞은 개수: " + state.correctCount;
+    nextBtn.disabled = false;
+  }
+
+  nextBtn.addEventListener("click", function(){
+    if(nextBtn.disabled) return;
+    nextBtn.disabled = true;
+    state.idx++;
+    if(state.idx >= state.words.length){
+      finishQuiz();
+    } else {
+      saveSession();
+      renderQuestion();
+    }
+  });
+
+  function finishQuiz(){
+    var total = state.words.length;
+    progressFill.style.width = "100%";
+    if(!state.retryMode){
+      setBest(state.part, state.mode, state.correctCount, total);
+    }
+    clearSession();
+    resultScore.textContent = state.correctCount + " / " + total;
+    var pct = Math.round((state.correctCount/total)*100);
+    resultLabel.textContent = pct === 100 ? "완벽해요! 🎉" : (pct >= 70 ? "잘했어요!" : "틀린 단어를 다시 확인해봐요");
+
+    missedList.innerHTML = "";
+    if(state.missed.length === 0){
+      var empty = document.createElement("div");
+      empty.className = "empty-missed";
+      empty.textContent = "틀린 단어가 없어요!";
+      missedList.appendChild(empty);
+      retryMissedBtn.classList.add("hidden");
+    } else {
+      retryMissedBtn.classList.remove("hidden");
+      state.missed.forEach(function(pair){
+        var row = document.createElement("div");
+        row.className = "missed-item";
+        var en = document.createElement("span");
+        en.className = "en";
+        en.textContent = pair[0];
+        var kr = document.createElement("span");
+        kr.className = "kr";
+        kr.textContent = pair[1];
+        row.appendChild(en);
+        row.appendChild(kr);
+        missedList.appendChild(row);
+      });
+    }
+    showScreen("result");
+  }
+
+  /* ---------- event wiring ---------- */
+  var homeTapLock = false;
+  function withTapLock(fn){
+    return function(){
+      if(homeTapLock) return;
+      homeTapLock = true;
+      fn();
+      setTimeout(function(){ homeTapLock = false; }, 300);
+    };
+  }
+
+  document.querySelectorAll(".modebtn").forEach(function(btn){
+    btn.addEventListener("click", withTapLock(function(){
+      var part = btn.getAttribute("data-part");
+      var mode = btn.getAttribute("data-mode");
+      startQuiz(part, mode, null, false);
+    }));
+  });
+
+  ["1","2"].forEach(function(part){
+    document.getElementById("wrongBtn-"+part).addEventListener("click", function(){
+      var wrongWords = getWrongSet(part);
+      if(wrongWords.length === 0) return;
+      var pool = PARTS[part].filter(function(p){ return wrongWords.indexOf(p[0]) !== -1; });
+      if(pool.length === 0) return;
+      startQuiz(part, "enkr", pool, true);
+    });
+  });
+
+  retryMissedBtn.addEventListener("click", function(){
+    if(state.missed.length === 0) return;
+    startQuiz(state.part, state.mode, state.missed, true);
+  });
+  retryAllBtn.addEventListener("click", function(){
+    startQuiz(state.part, state.mode, null, false);
+  });
+  homeBtnEl.addEventListener("click", function(){ showScreen("home"); });
+  backBtn.addEventListener("click", function(){ showScreen("home"); });
+
+  resumeGoBtn.addEventListener("click", function(){ resumeQuiz(); });
+  resumeDiscardBtn.addEventListener("click", function(){ clearSession(); refreshHome(); });
+
+  showScreen("home");
+})();
+</script>
+</body>
+</html>
