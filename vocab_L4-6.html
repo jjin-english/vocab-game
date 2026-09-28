@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>4·5·6과 단어테스트</title>
+<style>
+:root{--ink:#1d2b3a;--bg:#eef2f5;--hl:#ffe14d;--ok:#1f9d6b;--no:#e0483e;--mut:#66788a;--line:#d3dce4}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.5}
+.wrap{max-width:560px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:1.4rem;margin:6px 0 2px}
+.sub{color:var(--mut);font-size:.9rem;margin:0 0 18px}
+h2{font-size:.95rem;margin:22px 0 8px}
+button{font:inherit;color:inherit;cursor:pointer}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:9px 16px;border:2px solid var(--ink);background:#fff;border-radius:999px;font-weight:700}
+.chip.on{background:var(--hl)}
+.tt{font-size:.85rem;color:var(--mut);margin:8px 0 0}
+.sec{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--ink);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.sec b{font-size:1.05rem;background:linear-gradient(transparent 55%,var(--hl) 55%)}
+.sec span{display:block;color:var(--mut);font-size:.85rem;margin-top:2px}
+.sec small{float:right;color:var(--mut);font-size:.8rem}
+label{display:block;margin:6px 0;font-size:.92rem}
+.top{display:flex;justify-content:space-between;font-size:.9rem;color:var(--mut)}
+.bar{height:6px;background:var(--line);border-radius:3px;margin:8px 0 18px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ink);width:100%}
+.q{background:#fff;border:2px solid var(--ink);border-radius:14px;padding:26px 18px;text-align:center;font-size:1.5rem;font-weight:700;word-break:keep-all;min-height:110px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px}
+.q.long{font-size:1.05rem;font-weight:600;text-align:left;line-height:1.6}
+.q em{font-style:normal;font-size:.8rem;color:var(--mut);font-weight:400}
+.opts{display:grid;gap:9px;margin-top:14px}
+.opt{background:#fff;border:2px solid var(--line);border-radius:10px;padding:13px 14px;text-align:left;font-size:1rem;word-break:keep-all}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.ok{background:#dcf5ea;border-color:var(--ok)}
+.opt.no{background:#fde3e0;border-color:var(--no)}
+.txt{width:100%;margin-top:14px;padding:13px;font:inherit;font-size:1.1rem;border:2px solid var(--ink);border-radius:10px}
+.go{display:block;width:100%;margin-top:12px;padding:13px;background:var(--ink);color:#fff;border:0;border-radius:10px;font-weight:700}
+.go.alt{background:#fff;color:var(--ink);border:2px solid var(--ink)}
+.fb{margin-top:12px;padding:10px 12px;border-radius:10px;font-weight:600}
+.fb.ok{background:#dcf5ea;color:#106b48}.fb.no{background:#fde3e0;color:#a5271f}
+.big{font-size:3rem;font-weight:800;text-align:center;margin:10px 0 0}
+.big small{font-size:1.2rem;color:var(--mut)}
+.wl{list-style:none;padding:0;margin:8px 0}
+.wl li{background:#fff;border-left:5px solid var(--no);padding:8px 12px;margin-bottom:6px;border-radius:0 8px 8px 0;font-size:.92rem}
+.wl b{display:block}
+.spk{border:0;background:none;font-size:1.1rem;padding:0}
+</style></head><body><div class="wrap" id="app"></div>
+<script>
+const parse=t=>t.trim().split('\n').map(l=>{const i=l.indexOf('|');return{w:l.slice(0,i).trim(),m:l.slice(i+1).trim()}});
+const V={
+4:parse(`be famous for ~|~로 유명하다
+during|prep. ~동안
+vacation|n. 방학, 휴가
+San Francisco|샌프란시스코 (미국 서부의 도시)
+aunt|n. 이모
+take a trip to ~|~로 여행 가다
+look forward to ~|~을 기대하다, 몹시 기다리다
+Bangkok|n. 방콕 (태국의 수도)
+a cooking class|요리 수업
+Thai|n. 태국 사람, 태국어  a. 태국의
+plan|n. 계획  v. 계획하다
+information|n. 정보
+ride|v. 타다
+gondola|n. 곤돌라 (베니스에서 운하를 오가는 기다란 배)
+for sure|확실히, 틀림없이
+correct|a. 정확한  v. 바로잡다
+surfing|n. 파도타기, 서핑 (v. surf 서핑하다)
+first|a. 첫 번째의
+a lot of|많은 (= lots of, many)
+trail|n. 오솔길
+cliff|n. 절벽
+entrance|n. 입구 (v. enter 들어가다)
+bridge|n. 다리
+narrow|a. 좁은
+pearl|n. 진주
+souvenir|n. 기념품
+village|n. 마을
+yesterday|ad. 어제
+come|v. 오다 (과거형 came)
+most|a. 대부분의
+against|prep. ~와 대조적으로, 반대하여
+view|n. 경치
+fantastic|a. 환상적인
+terrace|n. 테라스
+especially|ad. 특히, 특별히
+spend|v. 시간을 보내다, (돈을) 쓰다 (과거형 spent)
+all day long|하루 종일
+take pictures of ~|~의 사진을 찍다
+street|n. 거리, 길
+be full of ~|~로 가득 차다 (= be filled with)
+buy|v. 사다 (과거형 bought)
+tea|n. 차
+local|a. 지역의, 현지의
+purple|a. 보라색의  n. 보라색
+island|n. 섬
+almost|ad. 거의, 대부분
+even|ad. 심지어, ~조차
+the entrance fee|입장료
+on one's way to ~|~로 가는 길에
+a rental shop|대여점
+explore|v. 탐험하다
+by bicycle|자전거로
+wash the dishes|설거지하다
+painting|n. (물감으로 그린) 그림
+go camping|캠핑 가다
+call|v. 전화하다
+museum|n. 박물관
+order|v. 주문하다  n. 주문
+an amusement park|놀이공원
+improve|v. 향상시키다, 개선하다`),
+5:parse(`terribly|ad. 몹시, 끔찍하게
+anything|대명사) 아무것, 무엇
+of course|당연하지, 물론
+inside|n. 안, 실내  ad. 안으로
+bottled water|병에 든 물, 생수 (비교: tap water 수돗물)
+sunflower|n. 해바라기
+flash|n. 손전등, 플래시
+damage|n. 손해  v. 해를 끼치다
+move on to ~|~로 진행하다, 옮겨가다
+Monet|모네
+feed|v. 먹이를 주다 (과거: fed - fed)
+rule|n. 규칙
+explain|v. 설명하다
+stole|v. 훔쳤다 (steal의 과거, 과거분사 stolen)
+eyewitness|n. 증인, 목격자
+criminal|n. 죄인, 범죄자
+wheelchair|n. 휠체어
+janitor|n. 관리인, 수위
+wig|n. 가발
+fall off|떨어지다
+turn around|뒤돌다
+run away|도망가다
+run after ~|~를 쫓아가다
+in fact|사실은
+guard|n. 경비원  v. 지키다
+crime scene|범죄 현장
+piece|n. 조각
+bakery|n. 빵집
+next to ~|prep. ~옆에
+found|v. 찾았다 (find의 과거)
+owner|n. 주인
+spoke|v. 말했다 (speak - spoke - spoken)
+clearly|ad. 명확히, 분명히
+suspect|n. 용의자  v. 의심하다
+height|n. 높이, 키 (high의 명사형)
+language|n. 언어
+cheap|a. 싼
+expensive|a. 비싼
+empty|a. 빈
+other|a. 다른
+reason|n. 이유
+worse|a. 더 나쁜 (bad의 비교급)
+more|a. 더 많은
+less|a. 더 적은  ad. 덜
+sneakers|n. 운동화
+balloon|n. 풍선
+cloud|n. 구름
+lake|n. 호수
+sign|n. 표지, 기호, 간판
+statement|n. 진술`),
+6:parse(`air conditioner|에어컨
+single-use|일회용의
+For here or to go?|여기서 드실 건가요, 가져가실 건가요?
+glass|n. 유리, 잔
+turn off|~을 끄다, 잠그다
+forgetful|잘 잊어버리는
+I know.|그러게.
+over there|저기, 저쪽에
+No problem.|문제없어. 괜찮아.
+carry|v. ~을 옮기다
+be late for ~|~에 늦다
+ask|v. 묻다, 요청하다
+plog|v. 플로깅하다 (조깅하며 쓰레기를 줍다)
+Excuse me?|뭐라고요?
+pick up|줍다
+at the same time|동시에
+sound + 형용사|~하게 들리다
+(Are you) Interested?|관심 있니?
+by the way|그런데
+help A with B|A가 B하는 것을 돕다
+empty|v. 비우다  a. 빈
+trash can|쓰레기통
+water|v. 물을 주다  n. 물
+fix|v. 고치다
+Zero-Waste Challenge|쓰레기 제로 도전
+sew|v. 바느질하다 (sewed - sewn)
+tear|v. 찢다 (과거형: tore - torn)
+reduce|v. 줄이다
+leftover|n. 남은 음식, 잔재
+container|n. 그릇, 용기
+lots of|많은 (= a lot of)
+get + 비교급 and 비교급|점점 더 ~해지다
+make A out of B|B로 A를 만들다
+on the Internet|인터넷에서
+zero|영, 없음
+challenge|n. 도전  v. 도전하다
+produce|v. 생산하다
+eat out|외식하다
+FYI (=for your information)|참고로
+reuse|v. 재사용하다
+delivery|n. 배달
+reusable|a. 재사용할 수 있는
+completely|ad. 완전히
+be good at + (동)명사|~을 잘하다
+look + 형용사|~하게 보이다
+heard|v. 들었다 (hear - heard - heard)
+I guess ~|~인 것 같다
+it's all right|괜찮아
+go away|사라지다, 떠나다
+machine|n. 기계
+one by one|하나씩, 차례차례
+in return|답례로, 그 대신에
+put A into B|A를 B에 넣다
+take A to B|A를 B로 가져가다
+near|a. 근처의, 가까운
+go camping|캠핑 가다
+give away|나눠주다, 거저 주다
+at an online shop|온라인 상점에서
+be in good condition|상태가 좋다
+look good|좋아 보이다
+join|v. 참여하다, 가입하다
+unique|a. 독특한
+label|n. 라벨, 상표
+take off|떼다, ~을 벗다, 이륙하다
+post|v. 게시하다
+on social media|SNS에서`)};
+const D={
+4:parse(`amusement|n. the feeling you have when you think something is funny
+explore|v. to travel to a new place to learn about it
+museum|a place where interesting objects of art or historical items are displayed
+rental|n. the act of paying for the use of something
+souvenir|n. something you keep as a reminder of a special visit or event
+spend|v. to use time doing something or being somewhere`),
+5:parse(`explain|v. to tell someone about something so that he or she can understand it
+eyewitness|n. someone who saw a crime or accident
+flash|n. a bright light on a camera that you use when taking photographs inside a building
+janitor|n. a person in charge of cleaning and fixing things in a building
+run away|v. to leave a place or person secretly and suddenly`),
+6:parse(`recycle|v. to put old paper, glass, or other materials through a special process so that they can be used again
+challenge|n. something that needs great mental or physical effort to be done successfully
+own|a. belonging to a particular person or thing
+plant|v. to put a plant into the ground or into a container of soil so that it will grow
+favor|n. something helpful that you do for someone
+delivery|n. the act of taking goods, letters, etc. to people's houses or places of work`)};
+const TITLE={4:'4과 The Joy of Traveling',5:'5과 Think Like Sherlock Holmes!',6:'6과 Good for the Earth, Good for Us',all:'4·5·6과 전체'};
+const MODES={kr2en:['한영','우리말 뜻 → 영어 단어','V'],en2kr:['영한','영어 단어 → 우리말 뜻','V'],def:['영영','영영풀이 → 영어 단어 (교재 제공 문항만)','D']};
+let S={lesson:'4',typing:false,timer:true},Q=[],i=0,score=0,wrong=[],T=null,done=false,CUR=null;
+const app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuf=a=>{a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a};
+const nz=s=>s.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+function pool(src,l){const ls=l==='all'?['4','5','6']:[l],seen=new Set(),out=[];ls.forEach(k=>src[k].forEach(x=>{const key=x.w.toLowerCase();if(!seen.has(key)){seen.add(key);out.push(x)}}));return out}
+const pick=(arr,ex,n)=>shuf([...new Set(arr)].filter(v=>v!==ex)).slice(0,n);
+function best(k){try{return localStorage.getItem('v456-'+k)}catch(e){return null}}
+function save(k,v){try{const o=best(k);if(o===null||v>+o)localStorage.setItem('v456-'+k,v)}catch(e){}}
+function home(){
+  clearInterval(T);
+  const chips=['4','5','6','all'].map(l=>`<button class="chip ${S.lesson===l?'on':''}" data-act="lesson" data-v="${l}">${l==='all'?'전체':l+'과'}</button>`).join('');
+  const secs=Object.keys(MODES).map(m=>{const [n,d,s]=MODES[m],cnt=pool(s==='V'?V:D,S.lesson).length,b=best(S.lesson+'-'+m);
+    return `<button class="sec" data-act="start" data-v="${m}"><small>${cnt}문항${b!==null?' · 최고 '+b:''}</small><b>${n}</b><span>${d}</span></button>`}).join('');
+  app.innerHTML=`<h1>단어테스트 4·5·6과</h1><p class="sub">범위를 고르고 영역을 시작하세요.</p>
+  <h2>범위</h2><div class="chips">${chips}</div><p class="tt">${TITLE[S.lesson]}</p>
+  <h2>영역</h2>${secs}
+  <h2>옵션</h2><label><input type="checkbox" data-opt="typing" ${S.typing?'checked':''}> 한영·영영은 직접 쓰기 (객관식 대신)</label>
+  <label><input type="checkbox" data-opt="timer" ${S.timer?'checked':''}> 문제당 타이머 (객관식 15초 / 쓰기 30초)</label>`;
+}
+function start(mode,items,all){
+  const src=MODES[mode][2]==='V'?V:D;
+  all=all||pool(src,S.lesson);items=items||all;
+  CUR={mode,all,l:S.lesson};
+  Q=shuf(items).map(x=>{
+    const o={x,mode,typ:S.typing&&mode!=='en2kr'};
+    if(mode==='en2kr'){o.q=x.w;o.a=x.m;o.opts=shuf([x.m,...pick(all.map(y=>y.m),x.m,3)])}
+    else{o.q=x.m;o.a=x.w;o.opts=shuf([x.w,...pick(all.map(y=>y.w),x.w,3)])}
+    return o});
+  i=0;score=0;wrong=[];ask();
+}
+function ask(){
+  clearInterval(T);done=false;const q=Q[i],lim=q.typ?30:15;
+  const say=q.mode==='en2kr'?` <button class="spk" data-act="say" aria-label="발음 듣기">🔊</button>`:'';
+  const long=q.mode==='def'?' long':'';
+  const body=q.typ?`<input class="txt" id="ans" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="영어 단어를 쓰세요"><button class="go" data-act="check">확인</button>`
+    :`<div class="opts">${q.opts.map((o,k)=>`<button class="opt" data-act="pick" data-idx="${k}">${esc(o)}</button>`).join('')}</div>`;
+  app.innerHTML=`<div class="top"><span>${MODES[q.mode][0]} · ${TITLE[CUR.l]}</span><span>${i+1} / ${Q.length}</span></div>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="q${long}"><div>${esc(q.q)}${say}</div>${q.mode==='def'?'<em>이 뜻에 맞는 영어 단어는?</em>':''}</div>${body}<div id="fb"></div>`;
+  if(q.typ)document.getElementById('ans').focus();
+  if(S.timer){const t0=Date.now();T=setInterval(()=>{const r=1-(Date.now()-t0)/(lim*1000),b=document.getElementById('bar');if(b)b.style.width=Math.max(r,0)*100+'%';if(r<=0){clearInterval(T);judge(false,null,true)}},100)}
+}
+function judge(ok,idx,timeout){
+  if(done)return;done=true;clearInterval(T);const q=Q[i];
+  if(ok)score++;else wrong.push(q.x);
+  if(!q.typ)document.querySelectorAll('.opt').forEach((b,k)=>{b.disabled=true;if(q.opts[k]===q.a)b.classList.add('ok');else if(k===idx)b.classList.add('no')});
+  else{const a=document.getElementById('ans');a.disabled=true}
+  const last=i===Q.length-1;
+  document.getElementById('fb').innerHTML=`<div class="fb ${ok?'ok':'no'}">${ok?'정답!':(timeout?'시간 초과 · ':'오답 · ')+'정답: '+esc(q.a)}</div><button class="go" data-act="next">${last?'결과 보기':'다음'}</button>`;
+  document.querySelector('[data-act=next]').focus();
+}
+function result(){
+  clearInterval(T);const n=Q.length;save(CUR.l+'-'+CUR.mode,score);
+  const wl=wrong.length?`<h2>틀린 문제 (${wrong.length})</h2><ul class="wl">${wrong.map(x=>`<li><b>${esc(x.w)}</b>${esc(x.m)}</li>`).join('')}</ul><button class="go" data-act="retry">틀린 문제 다시 풀기</button>`:'<p class="sub" style="text-align:center;margin-top:14px">모두 맞혔어요!</p>';
+  app.innerHTML=`<h1>${MODES[CUR.mode][0]} 결과</h1><p class="sub">${TITLE[CUR.l]}</p><div class="big">${score}<small> / ${n}</small></div>${wl}<button class="go alt" data-act="again">같은 영역 다시 풀기</button><button class="go alt" data-act="home">처음으로</button>`;
+}
+app.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
+  if(a==='lesson'){S.lesson=b.dataset.v;home()}
+  else if(a==='start')start(b.dataset.v);
+  else if(a==='pick'){const k=+b.dataset.idx,q=Q[i];judge(q.opts[k]===q.a,k)}
+  else if(a==='check'){const q=Q[i],v=document.getElementById('ans').value;judge(nz(v)!==''&&nz(v)===nz(q.a))}
+  else if(a==='next'){if(i>=Q.length-1)result();else{i++;ask()}}
+  else if(a==='retry')start(CUR.mode,wrong.slice(),CUR.all);
+  else if(a==='again')start(CUR.mode,null,CUR.all);
+  else if(a==='home')home();
+  else if(a==='say'){try{const u=new SpeechSynthesisUtterance(Q[i].q);u.lang='en-US';speechSynthesis.cancel();speechSynthesis.speak(u)}catch(x){}}
+});
+app.addEventListener('change',e=>{const o=e.target.dataset.opt;if(o){S[o]=e.target.checked}});
+app.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='ans'&&!done)document.querySelector('[data-act=check]').click()});
+home();
+</script></body></html>
