@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>씨앗과 나무 단어 연습</title>
+<style>
+:root{--bg:#f1f4ec;--ink:#1c2a21;--mut:#5d6b61;--card:#fff;--line:#d5dccd;--ok:#2e7d4f;--no:#c0392b}
+@media(prefers-color-scheme:dark){:root{--bg:#161d18;--ink:#e8efe6;--mut:#9aa89e;--card:#1f2922;--line:#34443a;--ok:#3f9a68;--no:#d4584a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+#app{max-width:560px;margin:0 auto;padding:20px 16px 48px}
+button{font:inherit;color:inherit;cursor:pointer}
+h1{font-size:1.6rem;margin:.2em 0}
+h2{font-size:1rem;margin:1.6em 0 .6em;color:var(--mut)}
+header p{margin:0;color:var(--mut)}
+.secs,.tests{display:grid;gap:10px}
+.sec{display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:12px 14px;border:2px solid var(--line);border-left:8px solid var(--c);border-radius:10px;background:var(--card);opacity:.5}
+.sec.on{opacity:1;border-color:var(--c)}
+.sec span,.test span{font-size:.85rem;color:var(--mut)}
+.test{display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.row{display:flex;gap:10px;margin:12px 0}.row>*{flex:1}
+.btn{padding:14px;border-radius:10px;border:2px solid var(--ink);background:var(--card);font-weight:700}
+.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn.no{background:var(--no);border-color:var(--no);color:#fff}
+.top{display:flex;justify-content:space-between;align-items:center}
+.back{border:0;background:none;color:var(--mut);padding:8px 0}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:18px}
+.bar i{display:block;height:100%;background:var(--ok)}
+.card{min-height:260px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px;border-radius:16px;background:var(--card);border:2px solid var(--line);border-top:10px solid var(--c);gap:8px;width:100%;color:var(--ink)}
+.card.flip{background:var(--c);border-color:var(--c);color:#fff}
+.card small,.card em{color:var(--mut);font-style:normal}
+.card.flip small,.card.flip em{color:#ffffffcc}
+.big{font-size:2rem;font-weight:800;word-break:keep-all}
+.prompt{font-size:1.8rem;font-weight:800;text-align:center;margin:18px 0 8px;word-break:keep-all}
+.hint{text-align:center;color:var(--mut);letter-spacing:.1em;margin-bottom:12px}
+.ch{display:grid;gap:10px}
+.opt{padding:14px;border-radius:10px;border:2px solid var(--line);background:var(--card);text-align:center}
+.opt.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.opt.no,.opt.bad{background:var(--no);border-color:var(--no);color:#fff}
+.opt.sel{border-color:var(--ink);background:var(--line)}
+.opt.done{background:var(--ok);border-color:var(--ok);color:#fff;pointer-events:none;opacity:.55}
+input{width:100%;font:inherit;font-size:1.3rem;padding:14px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);text-align:center}
+.fb{margin:12px 0;padding:12px;border-radius:10px;text-align:center;font-weight:700}
+.fb.ok{color:var(--ok)}.fb.no{color:var(--no)}
+.slots,.tiles{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+.slots b{min-width:36px;height:46px;border-bottom:3px solid var(--ink);text-align:center;font-size:1.5rem}
+.tiles button{width:46px;height:46px;border-radius:8px;border:2px solid var(--ink);background:var(--card);font-size:1.3rem;font-weight:700}
+.tiles button:disabled{opacity:.2}
+.mt{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mt>div{display:grid;gap:10px;align-content:start}
+.score{text-align:center;font-size:3.4rem;font-weight:800}
+.score span{font-size:1.2rem;color:var(--mut);font-weight:400}
+.wl{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.wl li{display:flex;justify-content:space-between;gap:10px;padding:8px 12px;background:var(--card);border-radius:8px}
+button:focus-visible,input:focus-visible{outline:3px solid #2f7f79;outline-offset:2px}
+</style></head>
+<body><main id="app"></main>
+<script>
+const S=[
+{t:'The Wind Beneath My Wings',s:'단풍나무 씨앗',c:'#c4452d',w:[['wing','날개'],['maple','단풍나무'],['transport','운반하다'],['carry','나르다'],['approach','접근법, 방법'],['irregular','불규칙한'],['ridge','융기, 두둑'],['surface','표면'],['spin','빙글빙글 돌다'],['rotation','회전'],['similar','유사한'],['propeller','프로펠러'],['elevate','올라가다, 높이다'],['as a result','결과적으로'],['slow down','늦추다'],['softly','부드럽게'],['land','착륙하다'],['reduce','줄이다'],['damage','손상']]},
+{t:'Rising from the Ashes',s:'불을 기다리는 유칼립투스',c:'#2f7f79',w:[['mature','성숙한'],['automatically','자동으로'],['separate','분리하다'],['release','방출하다'],['endure','견디다'],['extreme','극심한'],['grain','알갱이'],['capsule','캡슐'],['securely','단단히, 안전하게'],['protect','보호하다'],['shell','껍질'],['flammable','인화성의'],['rub','문지르다, 마찰하다'],['catch fire','불이 붙다'],['conceal','감추다'],['ash','재'],['harsh','가혹한'],['wildfire','산불'],['destroy','파괴하다'],['compete','경쟁하다'],['reproduce','번식하다']]},
+{t:'The Tallest Tree on Earth',s:'세계에서 가장 높은 나무',c:'#8a5a2b',w:[['typically','일반적으로'],['exceed','초과하다'],['enormously','엄청나게'],['reach','도달하다'],['record','기록'],['discover','발견하다'],['consider','여기다'],['naturalist','자연학자'],['overwhelmed','압도된'],['myth','신화'],['odds','가능성'],['slim','희박한'],['precise','정확한'],['potential','잠재적인'],['harm','피해'],['visitor','방문객'],['assume','추측하다'],['merely','단지'],['identify','식별하다'],['giant','거인']]}
+];
+const T=[['ek','영한 고르기','영어를 보고 뜻 고르기'],['ke','한영 고르기','뜻을 보고 영어 고르기'],['kw','한영 쓰기','뜻을 보고 영어 직접 쓰기'],['lw','듣고 쓰기','발음을 듣고 영어 쓰기'],['sp','철자 조합','글자 타일로 단어 만들기'],['mt','짝 맞추기','영어와 뜻 연결하기'],['mx','종합 테스트','유형을 섞어서 풀기']];
+const $=q=>document.querySelector(q),app=$('#app');
+const sh=a=>{a=[...a];for(let i=a.length;i>1;){const j=Math.random()*i--|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const ALL=S.flatMap((s,i)=>s.w.map(([e,k])=>({e,k,i})));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const norm=s=>s.trim().toLowerCase().replace(/\s+/g,' ');
+let sel=new Set([0,1,2]),st={};
+const pool=()=>ALL.filter(w=>sel.has(w.i));
+const speak=t=>{try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=.85;speechSynthesis.speak(u)}catch(e){}};
+const hd=(l,p)=>`<div class="top"><button class="back" data-a="home">처음으로</button><span>${l}</span></div><div class="bar"><i style="width:${p*100}%"></i></div>`;
+const cur=()=>st.m=='fc'?st.q[st.i]:st.q[st.i].w;
+
+function home(){
+ st={};
+ app.innerHTML=`<header><h1>씨앗과 나무 단어 연습</h1><p>지문 단어를 먼저 익히고, 테스트로 굳혀요.</p></header>
+ <h2>1. 연습할 지문 고르기</h2><div class="secs">${S.map((s,i)=>`<button class="sec ${sel.has(i)?'on':''}" style="--c:${s.c}" data-sec="${i}"><b>${s.t}</b><span>${s.s}, ${s.w.length}단어</span></button>`).join('')}</div>
+ <h2>2. 플래시카드로 익히기</h2><div class="row"><button class="btn" data-fc="en">영어 보고 뜻 떠올리기</button><button class="btn" data-fc="ko">뜻 보고 영어 떠올리기</button></div>
+ <h2>3. 테스트로 굳히기</h2><div class="tests">${T.map(([k,n,d])=>`<button class="test" data-t="${k}"><b>${n}</b><span>${d}</span></button>`).join('')}</div>`;
+}
+
+/* flashcards */
+function fc(dir,words){st={m:'fc',dir,q:sh(words||pool()),i:0,flip:false,hard:[]};fcR()}
+function fcR(){
+ const x=st.q[st.i];if(!x)return fcEnd();
+ const en=st.dir=='en',f=en?x.e:x.k,b=en?x.k:x.e;
+ app.innerHTML=hd(`${st.i+1} / ${st.q.length}`,st.i/st.q.length)+`<button class="card ${st.flip?'flip':''}" style="--c:${S[x.i].c}" data-a="flip"><small>${S[x.i].t}</small><div class="big">${esc(st.flip?b:f)}</div><em>${st.flip?'':'눌러서 뒤집기'}</em></button>
+ <div class="row"><button class="btn" data-a="say">발음 듣기</button></div>
+ <div class="row"><button class="btn no" data-a="hard">헷갈려요</button><button class="btn ok" data-a="know">알아요</button></div>`;
+ if(en?!st.flip:st.flip)speak(x.e);
+}
+function fcEnd(){
+ const h=st.hard;
+ app.innerHTML=hd('카드 끝',1)+`<div class="score">${st.q.length-h.length}<span> / ${st.q.length} 알아요</span></div>`+(h.length?`<h2>헷갈린 단어 ${h.length}개</h2><ul class="wl">${h.map(w=>`<li><b>${esc(w.e)}</b><span>${esc(w.k)}</span></li>`).join('')}</ul><div class="row"><button class="btn ok" data-a="fcr">헷갈린 단어만 다시</button></div>`:'<p style="text-align:center">모든 카드를 알아요! 이제 테스트로 굳혀 보세요.</p>')+`<div class="row"><button class="btn" data-a="home">테스트하러 가기</button></div>`;
+}
+
+/* quiz */
+const kind=(k,w)=>{const sp=w.e.includes(' ');if(k=='sp')return sp?'kw':'sp';if(k=='mx'){const a=sp?['ek','ke','kw','lw']:['ek','ke','kw','lw','sp'];return a[Math.random()*a.length|0]}return k};
+const chunk=a=>{const r=[];for(let i=0;i<a.length;i+=6)r.push(a.slice(i,i+6));if(r.length>1&&r[r.length-1].length<3)r[r.length-2].push(...r.pop());return r};
+function start(k,words){
+ const p=sh(words||pool());
+ if(k=='mt'){st={m:'mt',k,words,rounds:chunk(p),r:0,sc:0,tot:0,wrong:[]};return mtR()}
+ st={m:'q',k,words,q:p.map(w=>({w,t:kind(k,w)})),i:0,sc:0,wrong:[]};qR();
+}
+function qR(){
+ const o=st.q[st.i];if(!o)return res();
+ const w=o.w,t=o.t;
+ let h=hd(`${st.i+1} / ${st.q.length}`,st.i/st.q.length);
+ if(t=='ek'||t=='ke'){
+  const ek=t=='ek';
+  o.ch=sh([w,...sh(ALL.filter(x=>ek?x.k!=w.k:x.e!=w.e)).slice(0,3)]);
+  h+=`<div class="prompt">${esc(ek?w.e:w.k)}</div>`+(ek?'<div class="row"><button class="btn" data-a="say">발음 듣기</button></div>':'')+`<div class="ch">${o.ch.map((x,j)=>`<button class="opt" data-j="${j}">${esc(ek?x.k:x.e)}</button>`).join('')}</div>`;
+ }else if(t=='kw'||t=='lw'){
+  const hint=w.e.split(' ').map(s=>s[0]+' _'.repeat(s.length-1)).join('   ');
+  h+=`<div class="prompt">${t=='kw'?esc(w.k):'들리는 단어를 쓰세요'}</div>`+(t=='kw'?`<div class="hint">${hint}</div>`:'<div class="row"><button class="btn" data-a="say">발음 듣기</button></div>')+`<input id="in" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="영어로 쓰기"><div class="row"><button class="btn ok" data-a="chk">확인</button></div>`;
+ }else{
+  o.L=sh(w.e.split(''));o.cur=[];
+  h+=`<div class="prompt">${esc(w.k)}</div><div id="sl" class="slots"></div><div id="tl" class="tiles"></div><div class="row"><button class="btn" data-a="del">지우기</button><button class="btn" data-a="say">발음 듣기</button></div>`;
+ }
+ app.innerHTML=h+'<div id="fb"></div>';
+ if(t=='lw')speak(w.e);
+ if(t=='sp')spR();
+ if(t=='kw'||t=='lw')$('#in').focus();
+}
+function spR(){
+ const o=st.q[st.i];
+ $('#sl').innerHTML=o.w.e.split('').map((_,i)=>`<b>${o.cur[i]!=null?o.L[o.cur[i]]:''}</b>`).join('');
+ $('#tl').innerHTML=o.L.map((l,j)=>`<button data-l="${j}" ${o.cur.includes(j)?'disabled':''}>${l}</button>`).join('');
+}
+function tile(j){
+ const o=st.q[st.i];if(o.done||o.cur.length>=o.L.length)return;
+ o.cur.push(j);spR();
+ if(o.cur.length==o.L.length)ans(o.cur.map(x=>o.L[x]).join('')==o.w.e);
+}
+function pickCh(j,b){
+ const o=st.q[st.i];if(o.done)return;
+ const ok=o.ch[j]===o.w;
+ document.querySelectorAll('.opt').forEach((x,n)=>{if(o.ch[n]===o.w)x.classList.add('ok');x.disabled=true});
+ if(!ok)b.classList.add('no');
+ ans(ok);
+}
+function ans(ok){
+ const o=st.q[st.i];if(o.done)return;o.done=1;
+ const w=o.w,s=st;
+ if(ok)st.sc++;else st.wrong.push(w);
+ $('#fb').innerHTML=`<div class="fb ${ok?'ok':'no'}">${ok?'정답!':'오답'} ${esc(w.e)} = ${esc(w.k)}</div>`+(ok?'':'<div class="row"><button class="btn ok" data-a="next">다음 문제</button></div>');
+ speak(w.e);
+ if(ok)setTimeout(()=>{if(st===s)next()},1100);
+}
+const next=()=>{st.i++;qR()};
+
+/* matching */
+function mtR(){
+ const g=st.rounds[st.r];if(!g)return res();
+ st.g=g;st.p=null;st.left=g.length;st.mis=new Set();
+ app.innerHTML=hd(`${st.r+1} / ${st.rounds.length} 묶음`,st.r/st.rounds.length)+`<p style="text-align:center;color:var(--mut)">영어와 뜻을 차례로 눌러 짝을 맞추세요.</p><div class="mt"><div>${sh(g).map(w=>`<button class="opt" data-e="${ALL.indexOf(w)}">${esc(w.e)}</button>`).join('')}</div><div>${sh(g).map(w=>`<button class="opt" data-k="${ALL.indexOf(w)}">${esc(w.k)}</button>`).join('')}</div></div>`;
+}
+function mpick(b){
+ const side=b.dataset.e!==undefined?'e':'k',id=+b.dataset[side];
+ if(!st.p||st.p.side==side){if(st.p)st.p.b.classList.remove('sel');st.p={side,id,b};b.classList.add('sel');return}
+ const p=st.p;st.p=null;p.b.classList.remove('sel');
+ if(p.id==id){
+  [p.b,b].forEach(x=>x.classList.add('done'));speak(ALL[id].e);
+  if(--st.left==0){
+   const s=st;
+   st.g.forEach(w=>st.mis.has(ALL.indexOf(w))?st.wrong.push(w):st.sc++);
+   st.tot+=st.g.length;st.r++;
+   setTimeout(()=>{if(st===s)mtR()},700);
+  }
+ }else{
+  st.mis.add(p.id);st.mis.add(id);
+  [p.b,b].forEach(x=>x.classList.add('bad'));
+  setTimeout(()=>[p.b,b].forEach(x=>x.classList.remove('bad')),500);
+ }
+}
+
+/* result */
+function res(){
+ const tot=st.m=='mt'?st.tot:st.q.length,wr=[...new Map(st.wrong.map(w=>[w.e,w])).values()],pc=st.sc/tot;
+ st.wr=wr;
+ app.innerHTML=hd('결과',1)+`<div class="score">${st.sc}<span> / ${tot}</span></div><p style="text-align:center">${pc==1?'모두 맞혔어요!':pc>=.8?'거의 다 익혔어요.':'틀린 단어를 한 번 더 익혀 봐요.'}</p>`
+ +(wr.length?`<h2>다시 볼 단어 ${wr.length}개</h2><ul class="wl">${wr.map(w=>`<li><b>${esc(w.e)}</b><span>${esc(w.k)}</span></li>`).join('')}</ul><div class="row"><button class="btn ok" data-a="retry">틀린 단어만 다시</button><button class="btn" data-a="fcw">플래시카드로 보기</button></div>`:'')
+ +`<div class="row"><button class="btn" data-a="again">같은 테스트 다시</button><button class="btn" data-a="home">처음으로</button></div>`;
+}
+
+function act(a){
+ if(a=='home')return home();
+ if(a=='say')return speak(cur().e);
+ if(a=='flip'){st.flip=!st.flip;return fcR()}
+ if(a=='know'||a=='hard'){if(a=='hard')st.hard.push(st.q[st.i]);st.i++;st.flip=false;return fcR()}
+ if(a=='fcr')return fc(st.dir,st.hard);
+ if(a=='next')return next();
+ if(a=='chk'){const v=$('#in').value;if(v.trim())ans(norm(v)==norm(st.q[st.i].w.e));return}
+ if(a=='del'){const o=st.q[st.i];if(!o.done){o.cur.pop();spR()}return}
+ if(a=='retry')return start(st.k,st.wr);
+ if(a=='again')return start(st.k,st.words);
+ if(a=='fcw')return fc('en',st.wr);
+}
+app.addEventListener('click',ev=>{
+ const b=ev.target.closest('button');if(!b)return;const d=b.dataset;
+ if(d.sec!==undefined){const i=+d.sec;if(sel.has(i)){if(sel.size>1)sel.delete(i)}else sel.add(i);b.classList.toggle('on',sel.has(i))}
+ else if(d.fc)fc(d.fc);
+ else if(d.t)start(d.t);
+ else if(d.a)act(d.a);
+ else if(d.j!==undefined)pickCh(+d.j,b);
+ else if(d.l!==undefined)tile(+d.l);
+ else if(d.e!==undefined||d.k!==undefined)mpick(b);
+});
+app.addEventListener('keydown',ev=>{if(ev.key=='Enter'&&ev.target.id=='in')act('chk')});
+home();
+</script></body></html>
