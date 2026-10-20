@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>접미사 음절 읽기 연습</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--sub:#6b7385;--bd:#e2e5ee;--ac:#3b6cf6;--ok:#1fa971;--c1:#e8efff;--c2:#fff1e0;--t1:#2a55d6;--t2:#c75a00;--suf:#ffe9a8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12151c;--card:#1c212c;--tx:#eef1f7;--sub:#9aa3b6;--bd:#2c3342;--ac:#6f95ff;--ok:#3ccf91;--c1:#22305a;--c2:#4a3320;--t1:#a9c0ff;--t2:#ffb870;--suf:#6b5514}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;padding:12px}
+h1{font-size:20px;margin:4px 0 2px}
+.sub{color:var(--sub);font-size:13px;margin-bottom:10px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+.tab{flex:none;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:999px;padding:8px 14px;font-size:15px;font-weight:700;cursor:pointer}
+.tab.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.bar{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;align-items:center}
+.btn{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;padding:8px 12px;font-size:14px;cursor:pointer}
+.btn.on{border-color:var(--ac);color:var(--ac);font-weight:700}
+.prog{margin-left:auto;font-size:13px;color:var(--sub)}
+.desc{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;font-size:14px;margin-bottom:10px}
+.desc b{background:var(--suf);padding:1px 6px;border-radius:6px}
+.list{display:grid;gap:8px}
+.w{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px 12px}
+.w.done{border-color:var(--ok)}
+.num{width:22px;color:var(--sub);font-size:13px}
+.mid{flex:1;min-width:0}
+.syl{display:flex;flex-wrap:wrap;gap:5px}
+.s{font-size:26px;font-weight:800;padding:2px 10px;border-radius:9px;background:var(--c1);color:var(--t1);letter-spacing:.5px}
+.s:nth-child(even){background:var(--c2);color:var(--t2)}
+.whole .syl{gap:0}.whole .s{background:none!important;padding:2px 0;color:var(--tx)}
+.mean{font-size:13px;color:var(--sub);margin-top:3px}
+.hide .mean{visibility:hidden}
+.act{display:flex;flex-direction:column;gap:6px;align-items:center}
+.spk{width:44px;height:44px;border-radius:50%;border:none;background:var(--ac);color:#fff;font-size:20px;cursor:pointer}
+.cnt{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:999px;padding:3px 10px;font-size:13px;cursor:pointer;white-space:nowrap}
+.done .cnt{background:var(--ok);color:#fff;border-color:var(--ok)}
+.foot{color:var(--sub);font-size:12px;margin:14px 2px}
+</style>
+</head>
+<body>
+<h1>📖 접미사 음절 읽기 연습</h1>
+<div class="sub">음절(색 블록)을 보고 천천히 읽어 보세요. 🔊 듣고 → 따라 읽고 → ✔를 눌러 3번 채우기!</div>
+<div class="tabs" id="tabs"></div>
+<div class="bar">
+<button class="btn" id="bWhole">붙여서 보기</button>
+<button class="btn" id="bMean">뜻 숨기기</button>
+<button class="btn" id="bShuf">섞기</button>
+<button class="btn" id="bAuto">▶ 자동 읽기</button>
+<span class="prog" id="prog"></span>
+</div>
+<div class="desc" id="warn" style="display:none;border-color:#e0a100;background:var(--suf)"></div>
+<div class="desc" id="desc"></div>
+<div class="list" id="list"></div>
+<div class="foot">🔊 소리가 안 나면 휴대폰 무음 모드를 확인하세요. 목표 횟수: 단어당 3번.</div>
+<script>
+const D=[
+{s:"-er",d:"~하는 사람 / 도구",w:[["teach·er","선생님"],["play·er","선수"],["sing·er","가수"],["work·er","일하는 사람"],["farm·er","농부"],["dri·ver","운전사"],["read·er","독자"],["wri·ter","작가"],["dan·cer","무용수"],["paint·er","화가"]]},
+{s:"-ly",d:"~하게 (부사)",w:[["slow·ly","느리게"],["quick·ly","빠르게"],["sad·ly","슬프게"],["loud·ly","크게"],["kind·ly","친절하게"],["safe·ly","안전하게"],["ea·si·ly","쉽게"],["hap·pi·ly","행복하게"],["real·ly","정말로"],["near·ly","거의"]]},
+{s:"-ful",d:"~이 가득한",w:[["help·ful","도움이 되는"],["care·ful","조심하는"],["use·ful","유용한"],["joy·ful","기쁜"],["thank·ful","감사하는"],["pain·ful","고통스러운"],["hope·ful","희망찬"],["peace·ful","평화로운"],["col·or·ful","색이 다채로운"],["beau·ti·ful","아름다운"]]},
+{s:"-less",d:"~이 없는",w:[["care·less","부주의한"],["home·less","집 없는"],["use·less","쓸모없는"],["help·less","무력한"],["hope·less","희망 없는"],["fear·less","두려움 없는"],["pain·less","고통 없는"],["joy·less","기쁨 없는"],["end·less","끝없는"],["name·less","이름 없는"]]},
+{s:"-ness",d:"~한 상태 (명사)",w:[["kind·ness","친절"],["sad·ness","슬픔"],["hap·pi·ness","행복"],["ill·ness","병"],["dark·ness","어둠"],["good·ness","선함"],["sweet·ness","달콤함"],["fit·ness","건강, 체력"],["soft·ness","부드러움"],["loud·ness","큰 소리"]]},
+{s:"-ment",d:"~하는 일 / 결과 (명사)",w:[["move·ment","움직임"],["pay·ment","지불"],["state·ment","진술, 성명"],["treat·ment","치료"],["base·ment","지하실"],["a·part·ment","아파트"],["a·gree·ment","동의, 합의"],["en·joy·ment","즐거움"],["ex·cite·ment","흥분"],["im·prove·ment","향상"]]},
+{s:"-tion",d:"~하는 것 (명사)",w:[["ac·tion","행동"],["na·tion","국가"],["sta·tion","역"],["ques·tion","질문"],["va·ca·tion","휴가"],["so·lu·tion","해결책"],["ed·u·ca·tion","교육"],["in·vi·ta·tion","초대"],["in·for·ma·tion","정보"],["con·di·tion","상태, 조건"]]},
+{s:"-able",d:"~할 수 있는",w:[["read·a·ble","읽을 수 있는"],["wash·a·ble","세탁 가능한"],["break·a·ble","깨지기 쉬운"],["eat·a·ble","먹을 수 있는"],["use·a·ble","사용 가능한"],["love·a·ble","사랑스러운"],["change·a·ble","변하기 쉬운"],["en·joy·a·ble","즐거운"],["rea·son·a·ble","합리적인"],["com·fort·a·ble","편안한"]]},
+{s:"-y",d:"~가 많은 / ~한 느낌",w:[["rain·y","비 오는"],["sun·ny","화창한"],["wind·y","바람 부는"],["snow·y","눈 오는"],["cloud·y","흐린"],["luck·y","운 좋은"],["mess·y","지저분한"],["dust·y","먼지투성이의"],["noi·sy","시끄러운"],["health·y","건강한"]]}
+];
+const $=id=>document.getElementById(id);
+let cur=0,whole=false,hideMean=false,order=[],counts={},auto=false;
+try{counts=JSON.parse(localStorage.getItem("sfx_counts")||"{}")}catch(e){}
+function save(){try{localStorage.setItem("sfx_counts",JSON.stringify(counts))}catch(e){}}
+function reset(){order=D[cur].w.map((_,i)=>i)}
+let voices=[];
+function loadV(){try{voices=speechSynthesis.getVoices()}catch(e){}}
+try{loadV();speechSynthesis.onvoiceschanged=loadV}catch(e){}
+(function(){
+ const ua=navigator.userAgent||"",w=$("warn");
+ if(!("speechSynthesis" in window)||/KAKAOTALK|; wv\)|FBAN|FBAV|Instagram|NAVER\(inapp/i.test(ua)){
+  w.style.display="block";
+  w.innerHTML="⚠️ 이 화면(앱 안 브라우저)에서는 소리가 나지 않을 수 있어요. <b>Chrome(크롬) 또는 Safari(사파리)</b>로 링크를 열어 주세요. 오른쪽 위 ⋮ 또는 공유 버튼 → '다른 브라우저로 열기'.";
+ }
+})();
+function speak(t,rate){
+ return new Promise(res=>{
+  try{
+   const u=new SpeechSynthesisUtterance(t.replace(/·/g,""));
+   loadV();
+   const v=voices.find(x=>/^en[-_]US/i.test(x.lang))||voices.find(x=>/^en/i.test(x.lang));
+   if(v)u.voice=v;
+   u.lang=v?v.lang:"en-US";u.rate=rate||.8;u.volume=1;
+   let d=false;const f=()=>{if(!d){d=true;res()}};
+   u.onend=f;u.onerror=f;setTimeout(f,6000);
+   speechSynthesis.cancel();
+   setTimeout(()=>{try{speechSynthesis.resume();speechSynthesis.speak(u)}catch(e){f()}},80);
+  }catch(e){res()}
+ });
+}
+function oldSpeak(t,rate){
+ return new Promise(res=>{
+  try{
+   const u=new SpeechSynthesisUtterance(t.replace(/·/g,""));
+   u.lang="en-US";u.rate=rate||.8;u.onend=res;u.onerror=res;
+   speechSynthesis.cancel();speechSynthesis.speak(u);
+  }catch(e){res()}
+ });
+}
+function key(wd){return wd.replace(/·/g,"")}
+function render(){
+ const g=D[cur];
+ $("tabs").innerHTML=D.map((x,i)=>`<button class="tab ${i==cur?"on":""}" data-i="${i}">${x.s}</button>`).join("");
+ $("desc").innerHTML=`접미사 <b>${g.s}</b> — ${g.d}`;
+ const L=$("list");L.className="list"+(whole?" whole":"")+(hideMean?" hide":"");
+ L.innerHTML=order.map((idx,n)=>{
+  const [w,m]=g.w[idx],k=key(w),c=counts[k]||0;
+  return `<div class="w ${c>=3?"done":""}" id="r${idx}"><div class="num">${n+1}</div><div class="mid"><div class="syl">${w.split("·").map(s=>`<span class="s">${s}</span>`).join("")}</div><div class="mean">${m}</div></div><div class="act"><button class="spk" data-s="${idx}" aria-label="듣기">🔊</button><button class="cnt" data-c="${idx}">✔ ${Math.min(c,3)}/3${c>3?"+":""}</button></div></div>`;
+ }).join("");
+ const done=g.w.filter(x=>(counts[key(x[0])]||0)>=3).length;
+ $("prog").textContent=`완료 ${done}/10`;
+ $("bWhole").classList.toggle("on",whole);$("bMean").classList.toggle("on",hideMean);
+}
+$("tabs").onclick=e=>{const b=e.target.closest(".tab");if(!b)return;auto=false;$("bAuto").textContent="▶ 자동 읽기";cur=+b.dataset.i;reset();render();window.scrollTo(0,0)};
+$("list").onclick=e=>{
+ const s=e.target.closest(".spk"),c=e.target.closest(".cnt");
+ if(s){speak(D[cur].w[+s.dataset.s][0],.7)}
+ if(c){const k=key(D[cur].w[+c.dataset.c][0]);counts[k]=(counts[k]||0)+1;save();render()}
+};
+$("bWhole").onclick=()=>{whole=!whole;render()};
+$("bMean").onclick=()=>{hideMean=!hideMean;render()};
+$("bShuf").onclick=()=>{order.sort(()=>Math.random()-.5);render()};
+$("bAuto").onclick=async()=>{
+ if(auto){auto=false;speechSynthesis.cancel();$("bAuto").textContent="▶ 자동 읽기";return}
+ auto=true;$("bAuto").textContent="■ 멈추기";
+ for(const idx of order){
+  if(!auto)break;
+  const el=$("r"+idx);if(el){el.scrollIntoView({block:"center",behavior:"smooth"});el.style.outline="3px solid var(--ac)"}
+  const w=D[cur].w[idx][0];
+  await speak(w,.6);await new Promise(r=>setTimeout(r,2200));
+  if(auto)await speak(w,.9);await new Promise(r=>setTimeout(r,1200));
+  if(el)el.style.outline="";
+ }
+ auto=false;$("bAuto").textContent="▶ 자동 읽기";
+};
+reset();render();
+</script>
+</body>
+</html>
